@@ -1,11 +1,9 @@
-''' General utilities '''
-
 import logging
 import copy
 
 import astropy.units as u
 
-__all__ = ['collectArguments', 'collectKwargs', 'setDefaultKwargs', 'sortArrays']
+__all__ = ['collectArguments', 'collectKwargs', 'setDefaultKwargs', 'sortArrays', 'collectFinalLines']
 
 logger = logging.getLogger(__name__)
 
@@ -193,3 +191,62 @@ def sortArrays(*args):
         _, a = zip(*sorted(zip(orderArray, arg)))
         newArgs.append(list(a))
     return newArgs
+
+
+def collectFinalLines(file, nLines):
+    '''
+    Parameters
+    ----------
+    file: str or Path
+        File to collect the lines from.
+    nLines: int
+        Number of lines to be collected.
+
+    Returns
+    -------
+    str: lines
+    '''
+    fileInLines = list()
+    with open(file, 'r') as f:
+        for line in f:
+            fileInLines.append(line)
+    collectedLines = fileInLines[-nLines:-1]
+    out = ''
+    for ll in collectedLines:
+        out += ll
+    return out
+
+
+def getLogLevelFromUser(logLevel):
+    '''
+    Map between logging level from the user to logging levels of the logging module.
+
+    Parameters
+    ----------
+    logLevel: str
+        Log level from the user
+
+    Returns
+    -------
+    logging.LEVEL
+        The requested logging level to be used as input to logging.setLevel()
+    '''
+
+    possibleLevels = {
+        'info': logging.INFO,
+        'debug': logging.DEBUG,
+        'warn': logging.WARNING,
+        'warning': logging.WARNING,
+        'error': logging.ERROR,
+        'critical': logging.CRITICAL
+    }
+    logLevelLower = logLevel.lower()
+    if logLevelLower not in possibleLevels:
+        raise ValueError(
+            '"{}" is not a logging level, only possible ones are {}'.format(
+                logLevel,
+                list(possibleLevels.keys())
+            )
+        )
+    else:
+        return possibleLevels[logLevelLower]

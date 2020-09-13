@@ -1,0 +1,20 @@
+# configuration file for simtools
+
+useMongoDB: True
+mongoDBConfigFile: ./dbDetails.yml
+
+modelFilesLocations: [
+  /Users/ogueta/work/cta/Simulations/SimulationModel/ModelDescription/trunk/configReports,
+  /Users/ogueta/work/cta/Simulations/SimulationModel/ModelDescription/trunk/datFiles,
+  /Users/ogueta/work/cta/Simulations/SimulationModel/Verification/dataFromInstrumentTeams
+]
+
+outputLocation: .
+
+testDataLocation: './data/'
+
+simtelPath: /Users/ogueta/work/cta/gammasim/gammasim-tools/sim_telarray/22_06_20
+
+# Not used yet
+submissionCommand: 'qsub '
+

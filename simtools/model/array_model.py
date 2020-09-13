@@ -2,7 +2,7 @@
 
 """ This module contains the ArrayModel class
 
-    Todo:
+    Todo: everything
 
 """
 
@@ -11,27 +11,8 @@ import yaml
 from pathlib import Path
 
 from simtools.util import names
-import simtools.db_handler as db
 
-__all__ = ['getArray', 'ArrayModel']
-
-
-def getArray(arrayName, databaseLocation):
-    """ Return the telescope size (SST, MST or LST) for a given telescopeType.
-
-    Args:
-        arrayName (str):
-
-        databaseLocation (Path):
-
-    Returns:
-        dict:
-
-    """
-
-    arrayName = names.validateName(arrayName, names.allArrayNames)
-    allArrays = db.getArrayDB(databaseLocation)
-    return allArrays[arrayName]
+__all__ = ['ArrayModel']
 
 
 class ArrayModel:

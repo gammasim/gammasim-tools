@@ -10,29 +10,26 @@ logger.setLevel(logging.DEBUG)
 
 
 def test_input_validation():
-    telType = 'lst'
-    site = 'south'
-    logger.info('Input telType: {}'.format(telType))
-    logger.info('Input site: {}'.format(site))
+    telName = 'north-lst-1'
+    logger.info('Input telName: {}'.format(telName))
 
     tel = TelescopeModel(
-        telescopeType=telType,
-        site=site,
+        telescopeName=telName,
         version='prod4',
-        label='test-lst'
+        label='test-lst',
+        logger=logger.name
     )
 
-    logger.info('Validated telType: {}'.format(tel.telescopeType))
-    logger.info('Validated site: {}'.format(tel.site))
+    logger.info('Validated telName: {}'.format(tel.telescopeName))
     return
 
 
 def test_handling_parameters():
     tel = TelescopeModel(
-        telescopeType='lst',
-        site='south',
+        telescopeName='north-lst-1',
         version='prod4',
-        label='test-lst'
+        label='test-lst',
+        logger=logger.name
     )
 
     logger.info(
@@ -54,10 +51,10 @@ def test_handling_parameters():
 
 def test_flen_type():
     tel = TelescopeModel(
-        telescopeType='lst',
-        site='south',
+        telescopeName='north-lst-1',
         version='prod4',
-        label='test-lst'
+        label='test-lst',
+        logger=logger.name
     )
     flen = tel.getParameter('focal_length')
     logger.info('Focal Length = {}, type = {}'.format(flen, type(flen)))
@@ -68,10 +65,10 @@ def test_flen_type():
 def test_cfg_file():
     # Exporting
     tel = TelescopeModel(
-        telescopeType='lst',
-        site='south',
+        telescopeName='south-sst-d',
         version='prod4',
-        label='test-lst'
+        label='test-sst',
+        logger=logger.name
     )
     # tel.exportConfigFile(loc='/home/prado/Work/Projects/CTA_MC/MCLib')
     tel.exportConfigFile()
@@ -81,10 +78,10 @@ def test_cfg_file():
     # Importing
     cfgFile = tel.getConfigFile()
     tel = TelescopeModel.fromConfigFile(
-        telescopeType='astri',
-        site='south',
-        label='test-astri',
-        configFileName=cfgFile
+        telescopeName='south-sst-d',
+        label='test-sst',
+        configFileName=cfgFile,
+        logger=logger.name
     )
     tel.exportConfigFile()
     return
@@ -92,19 +89,20 @@ def test_cfg_file():
 
 def test_cfg_input():
     tel = TelescopeModel(
-        telescopeType='lst',
-        site='south',
+        telescopeName='north-lst-1',
         version='prod4',
-        label='test-input'
+        label='test-sst-2',
+        logger=logger.name
     )
     return
 
 
 if __name__ == '__main__':
 
-    test_handling_parameters()
-    test_input_validation()
-    test_flen_type()
-    test_cfg_file()
-    test_cfg_input()
+    # test_handling_parameters()
+    # test_input_validation()
+    # test_flen_type()
+    # test_cfg_file()
+    # test_cfg_input()
+    test_pars_from_db_handler()
     pass

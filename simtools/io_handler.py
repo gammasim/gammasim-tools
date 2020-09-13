@@ -15,7 +15,7 @@ __all__ = [
 ]
 
 
-def _getOutputDirectory(filesLocation, label, mode):
+def getOutputDirectory(filesLocation, label, mode):
     '''
     Get main output directory for a generic mode
 
@@ -32,7 +32,9 @@ def _getOutputDirectory(filesLocation, label, mode):
     '''
     today = datetime.date.today()
     labelDir = label if label is not None else 'd-' + str(today)
-    return Path(filesLocation).joinpath('simtools-files').joinpath(labelDir).joinpath(mode)
+    path = Path(filesLocation).joinpath('simtools-files').joinpath(labelDir).joinpath(mode)
+    path.mkdir(parents=True, exist_ok=True)
+    return path.absolute()
 
 
 def getModelOutputDirectory(filesLocation, label):
@@ -50,7 +52,7 @@ def getModelOutputDirectory(filesLocation, label):
     -------
     Path
     '''
-    return _getOutputDirectory(filesLocation, label, 'model')
+    return getOutputDirectory(filesLocation, label, 'model')
 
 
 def getRayTracingOutputDirectory(filesLocation, label):
@@ -68,7 +70,7 @@ def getRayTracingOutputDirectory(filesLocation, label):
     -------
     Path
     '''
-    return _getOutputDirectory(filesLocation, label, 'ray-tracing')
+    return getOutputDirectory(filesLocation, label, 'ray-tracing')
 
 
 def getCorsikaOutputDirectory(filesLocation, label):
@@ -86,7 +88,43 @@ def getCorsikaOutputDirectory(filesLocation, label):
     -------
     Path
     '''
-    return _getOutputDirectory(filesLocation, label, 'corsika')
+    return getOutputDirectory(filesLocation, label, 'corsika')
+
+
+def getCameraEfficiencyOutputDirectory(filesLocation, label):
+    '''
+    Get output directory for camera efficiency related files.
+
+    Parameters
+    ----------
+    filesLocation: str, or Path
+        Main location of the output files.
+    label: str
+        Instance label.
+
+    Returns
+    -------
+    Path
+    '''
+    return getOutputDirectory(filesLocation, label, 'camera-efficiency')
+
+
+def getApplicationOutputDirectory(filesLocation, label):
+    '''
+    Get output directory for applications related files.
+
+    Parameters
+    ----------
+    filesLocation: str, or Path
+        Main location of the output files.
+    label: str
+        Instance label.
+
+    Returns
+    -------
+    Path
+    '''
+    return getOutputDirectory(filesLocation, label, 'application')
 
 
 def getTestDataFile(fileName):

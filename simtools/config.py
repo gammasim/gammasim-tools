@@ -1,10 +1,11 @@
 ''' Module to deal with the interface with the global config information.'''
 
-from pathlib import Path
 import logging
 import yaml
+import copy
+from pathlib import Path
 
-__all__ = ['loadConfig', 'get', 'findFile']
+__all__ = ['loadConfig', 'get', 'findFile', 'change']
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +51,12 @@ def loadConfig(fileName=None):
 
     with open(thisFileName, 'r') as stream:
         config = yaml.load(stream, Loader=yaml.FullLoader)
+
+    # Running over the parameters set for change
+    if 'CONFIG_CHANGED_PARS' in globals():
+        for par, value in CONFIG_CHANGED_PARS.items():
+            config[par] = value
+
     return config
 
 
@@ -74,13 +81,26 @@ def get(par):
         return config[par]
 
 
-def collectConfigArg(name, value):
+def change(par, value):
     '''
-    Collect a config parameter if value is None. To be used to receive input arguments in classes.
+    Set to change a parameter to another value.
 
-    Warning
-    -------
-    Bad function naming - please redo it.
+    Parameters
+    ----------
+    par: str
+        Name of the parameter to change.
+    value: any
+        Value to be set to the parameter.
+    '''
+    if 'CONFIG_CHANGED_PARS' not in globals():
+        global CONFIG_CHANGED_PARS
+        CONFIG_CHANGED_PARS = dict()
+    CONFIG_CHANGED_PARS[par] = value
+
+
+def getConfigArg(name, value):
+    '''
+    Get a config parameter if value is None. To be used to receive input arguments in classes.
 
     Parameters
     ----------
@@ -118,14 +138,16 @@ def findFile(name, loc=None):
         If the desired file is not found.
     '''
     if loc is None:
-        loc = get(par='modelFilesLocations')
-    loc = [loc] if not isinstance(loc, list) else loc
+        allLocations = get(par='modelFilesLocations')
+    else:
+        allLocations = copy.copy(loc)
+    allLocations = [allLocations] if not isinstance(allLocations, list) else allLocations
 
     def _searchDirectory(directory, filename, rec=False):
         logger.debug('Searching directory {}'.format(directory))
         if not Path(directory).exists():
             msg = 'Directory {} does not exist'.format(directory)
-            logger.warning(msg)
+            logger.debug(msg)
             return None
 
         f = Path(directory).joinpath(filename)
@@ -148,10 +170,10 @@ def findFile(name, loc=None):
     if ff is not None:
         return ff
     # Searching file in given locations
-    for ll in loc:
+    for ll in allLocations:
         ff = _searchDirectory(ll, name, True)
         if ff is not None:
             return ff
-    msg = 'File {} could not be found'.format(name)
+    msg = 'File {} could not be found in {}'.format(name, loc)
     logger.error(msg)
     raise FileNotFoundError(msg)

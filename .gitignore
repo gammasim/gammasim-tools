@@ -1,9 +1,12 @@
+# Local config.yml
+config.yml
+
 # Produced files
 simtools-files
 telarray_rand.conf.used
 
 # Files produced tests
-data/test-plots/*pdf
+data/test-plots/*
 
 # Compiled files
 *.py[co]
@@ -14,3 +17,6 @@ __pycache__
 
 # Sphinx
 docs/build
+
+# DB config gfile
+dbDetails.yml

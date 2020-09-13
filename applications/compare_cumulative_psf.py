@@ -23,30 +23,28 @@ logger.setLevel(logging.INFO)
 
 def getData(**kwargs):
     dType = {
-        'title': ('Radius [cm]', 'Relative intensity'),
-        'names': ('radius', 'intensity'),
+        'names': ('Radius [cm]', 'Relative intensity'),
         'formats': ('f8', 'f8')
     }
     testDataFile = io.getTestDataFile('PSFcurve_data_v2.txt')
     data = np.loadtxt(testDataFile, dtype=dType, usecols=(0, 2))
-    data['radius'] *= 0.1
-    data['intensity'] /= np.max(np.abs(data['intensity']))
+    data['Radius [cm]'] *= 0.1
+    data['Relative intensity'] /= np.max(np.abs(data['Relative intensity']))
     return data
 
 
 if __name__ == '__main__':
     sourceDistance = 12 * u.km
-    site = 'south'
     version = 'prod4'
     label = 'lst_integral'
     zenithAngle = 20 * u.deg
     offAxisAngle = [0 * u.deg]
 
     tel = TelescopeModel(
-        telescopeType='lst',
-        site=site,
+        telescopeName='north-lst-1',
         version=version,
-        label=label
+        label=label,
+        logger=logger.name
     )
 
     # New parameters defined by Konrad
@@ -60,7 +58,8 @@ if __name__ == '__main__':
         telescopeModel=tel,
         sourceDistance=sourceDistance,
         zenithAngle=zenithAngle,
-        offAxisAngle=offAxisAngle
+        offAxisAngle=offAxisAngle,
+        logger=logger.name
     )
 
     ray.simulate(test=True, force=False)
