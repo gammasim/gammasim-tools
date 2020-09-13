@@ -5,9 +5,11 @@ import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.collections import PatchCollection
+from astropy import units as u
+from astropy.table import QTable
 from simtools.util import legendHandlers as legH
 
-__all__ = ['readTelescopeLayout', 'plotArray']
+__all__ = ['readTelescopeLayoutEcsv', 'readTelescopeLayoutCorsika', 'plotArray']
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -17,20 +19,31 @@ def plotArray(telescopes, rotateAngle):
 
     sizeFactor = 0
     hasSST = False
-    telescopes['x'], telescopes['y'] = _rotate(rotateAngle,
-                                               telescopes['x'],
-                                               telescopes['y'])
-    sizeFactor = max(np.max(telescopes['x']), np.max(telescopes['y']))/300.
-    if any('SST' in telNameNow for telNameNow in telescopes['name']):
+    if rotateAngle != 0:
+        telescopes['pos_x'], telescopes['pos_y'] = _rotate(rotateAngle,
+                                                   telescopes['pos_x'],
+                                                   telescopes['pos_y'])
+    sizeFactor = max(np.max(telescopes['pos_x']), np.max(telescopes['pos_y']))/(300.*u.m) 
+    fontsize = 12
+    if any('S' in telNameNow for telNameNow in telescopes['telescope_name']):
         hasSST = True
+        fontsize = 5
 
     patches = []
     for i_tel in range(len(telescopes)):
         patches.append(_getTelescopePatch(
-            telescopes[i_tel]['name'][0:3],
-            telescopes[i_tel]['x'],
-            telescopes[i_tel]['y'],
+            telescopes[i_tel]['telescope_name'][0],
+            telescopes[i_tel]['pos_x'],
+            telescopes[i_tel]['pos_y'],
             telescopes[i_tel]['radius']*sizeFactor)
+        )
+        plt.text(
+            telescopes[i_tel]['pos_x'].value, 
+            telescopes[i_tel]['pos_y'].value + telescopes[i_tel]['radius'].value, 
+            telescopes[i_tel]['telescope_name'],
+            horizontalalignment='center',
+            verticalalignment='bottom',
+            fontsize=fontsize
         )
 
     plt.gca().add_collection(PatchCollection(patches, match_original=True))
@@ -64,25 +77,31 @@ def plotArray(telescopes, rotateAngle):
 
 def _getTelescopePatch(name, x, y, radius):
 
-    colors = {'LST': 'darkorange', 'MST': 'dodgerblue', 'SST': 'black'}
+    colors = {'L': 'darkorange', 'M': 'dodgerblue', 'S': 'black'}
 
     colorNow = colors[name]
-    if name == 'LST':
-        patch = mpatches.Circle((x, y),
-                                radius=radius,
-                                fill=False,
-                                color=colorNow)
-    elif name == 'MST':
-        patch = mpatches.Rectangle((x - radius/2, y - radius/2),
-                                   width=radius,
-                                   height=radius,
-                                   fill=True,
-                                   color=colorNow)
-    elif name == 'SST':
-        patch = mpatches.Circle((x, y),
-                                radius=radius,
-                                fill=True,
-                                color=colorNow)
+    if 'L' == name:
+        patch = mpatches.Circle(
+            (x.value, y.value),
+            radius=radius.value,
+            fill=False,
+            color=colorNow
+        )
+    elif 'M' == name:
+        patch = mpatches.Rectangle(
+            ((x - radius/2).value, (y - radius/2).value),
+            width=radius.value,
+            height=radius.value,
+            fill=True,
+            color=colorNow
+        )
+    elif 'S' == name:
+        patch = mpatches.Circle(
+            (x.value, y.value),
+            radius=radius.value,
+            fill=True,
+            color=colorNow
+        )
     else:
         raise RuntimeError('Name of telescope unknown - {}'.format(name))
 
@@ -92,10 +111,10 @@ def _getTelescopePatch(name, x, y, radius):
 def _rotate(rotationAngle, x, y):
     """
     Rotate x and y by the rotation angle given in rotationAngle.
+
     The function returns the rotated x and y values.
     Notice that rotationAngle must be given in degrees!
     """
-
     if not isinstance(x, type(y)):
         raise RuntimeError('x and y are not the same type! '
                            'Cannot perform transformation.')
@@ -116,11 +135,37 @@ def _rotate(rotationAngle, x, y):
     return xTrans, yTrans
 
 
-def readTelescopeLayout(fileName):
+def readTelescopeLayoutCorsika(fileName):
 
-    headersType = {'names': ('x', 'y', 'radius', 'name'),
+    # FIXME Adding the Ecsv option below broke this function.
+    # It is probably not necessary anyway anymore, so it will stay broken
+    # until a good reason to fix it is found.
+
+    headersType = {'names': ('pos_x', 'pos_y', 'radius', 'telescope_name'),
                    'formats': ('f8', 'f8', 'f8', 'U10')}
 
     telescopes = np.loadtxt(fileName, dtype=headersType, usecols=(5, 6, 8, 9))
+
+    return telescopes
+
+
+def readTelescopeLayoutEcsv(fileName):
+
+    telNameDict = {'L': 'LST', 'M': 'MST', 'S': 'SST'}
+    telescopes = QTable.read(fileName)
+    telescopes['radius'] = [
+        float(
+            telescopes.meta['corsika_sphere_radius'][telNameDict[telNameNow[0]]].split()[0]
+        ) for telNameNow in telescopes['telescope_name']
+    ]
+    telescopes['radius'].unit = u.Unit(telescopes.meta['corsika_sphere_radius']['LST'].split()[1])
+
+    return telescopes
+
+
+def selectSubArray(fileName, hyperArray):
+    
+    subArray = np.loadtxt(fileName, dtype=('U10'), usecols=(4))
+    telescopes = hyperArray[[telNow in subArray for telNow in hyperArray['telescope_name']]]
 
     return telescopes
