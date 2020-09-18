@@ -27,6 +27,14 @@ if __name__ == '__main__':
         help='File with a list of telescope to select the sub-array.',
         type=str,
     )
+    parser.add_argument(
+        '-o',
+        '--output_format',
+        choices=['pdf', 'png'],
+        default='pdf',
+        help='Output file format for the plot.',
+        type=str,
+    )
 
 
     args = parser.parse_args()
@@ -42,9 +50,9 @@ if __name__ == '__main__':
         telescopes = sites.selectSubArray(args.sub_array, telescopes)
         siteLabel = args.sub_array.split('CTA.')[1].split('.lis')[0].replace('.', '-')
     plt = sites.plotArray(telescopes, 270)
-    plt.gca().set_title('{} telescope layout'.format(siteLabel),
-                        fontsize=15, y=1.02)
-    plotFile = outputDir.joinpath('{}-layout.pdf'.format(siteLabel))
+    plt.gca().set_title('{} layout'.format(siteLabel),
+                        fontsize=13, y=1.02)
+    plotFile = outputDir.joinpath('{}-layout.{}'.format(siteLabel, args.output_format))
     logger.info('Plotting in {}'.format(plotFile))
-    plt.savefig(plotFile, format='pdf', bbox_inches='tight')
+    plt.savefig(plotFile, format=args.output_format, bbox_inches='tight')
     plt.clf()

@@ -18,15 +18,32 @@ logger.setLevel(logging.DEBUG)
 def plotArray(telescopes, rotateAngle):
 
     sizeFactor = 0
-    hasSST = False
+    legendObjects = list()
+    legendLabels = list()
+    telCounters = {'L': 0, 'M': 0, 'S': 0}
     if rotateAngle != 0:
-        telescopes['pos_x'], telescopes['pos_y'] = _rotate(rotateAngle,
-                                                   telescopes['pos_x'],
-                                                   telescopes['pos_y'])
+        telescopes['pos_x'], telescopes['pos_y'] = _rotate(
+            rotateAngle,
+            telescopes['pos_x'],
+            telescopes['pos_y']
+        )
+    
     sizeFactor = max(np.max(telescopes['pos_x']), np.max(telescopes['pos_y']))/(300.*u.m) 
     fontsize = 12
-    if any('S' in telNameNow for telNameNow in telescopes['telescope_name']):
-        hasSST = True
+    for telNameNow in telescopes['telescope_name']:
+        for telType in telCounters.keys():
+            if telType in telNameNow:
+                telCounters[telType] += 1
+
+    if telCounters['L'] > 0:
+        legendObjects.append(legH.lstObject())
+        legendLabels.append('LST ({})'.format(telCounters['L']))
+    if telCounters['M'] > 0:
+        legendObjects.append(legH.mstObject())
+        legendLabels.append('MST ({})'.format(telCounters['M']))
+    if telCounters['S'] > 0:
+        legendObjects.append(legH.sstObject())
+        legendLabels.append('SST ({})'.format(telCounters['S']))
         fontsize = 5
 
     patches = []
@@ -47,19 +64,14 @@ def plotArray(telescopes, rotateAngle):
         )
 
     plt.gca().add_collection(PatchCollection(patches, match_original=True))
-
-    legendObjects = [legH.lstObject(), legH.mstObject()]
-    legendLabels = ['LST', 'MST']
+    
     legendHandlerMap = {legH.lstObject: legH.lstHandler(),
                         legH.mstObject: legH.mstHandler(),
                         legH.sstObject: legH.sstHandler()}
-    if hasSST:
-        legendObjects.append(legH.sstObject())
-        legendLabels.append('SST')
 
-    xTitle = 'x [m]'
-    yTitle = 'y [m]'
-    plt.axis('equal')
+    xTitle = 'East [m]'
+    yTitle = 'North [m]'
+    plt.axis('square')
     plt.grid(True)
     plt.gca().set_axisbelow(True)
     plt.xlabel(xTitle, fontsize=18, labelpad=0)
