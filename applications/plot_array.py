@@ -50,8 +50,8 @@ if __name__ == '__main__':
         telescopes = sites.selectSubArray(args.sub_array, telescopes)
         siteLabel = args.sub_array.split('CTA.')[1].split('.lis')[0].replace('.', '-')
     plt = sites.plotArray(telescopes, 270)
-    plt.gca().set_title('{} layout'.format(siteLabel),
-                        fontsize=13, y=1.02)
+    plt.gca().set_title('{}'.format(siteLabel),
+                        fontsize=12, y=1.02)
     plotFile = outputDir.joinpath('{}-layout.{}'.format(siteLabel, args.output_format))
     logger.info('Plotting in {}'.format(plotFile))
     plt.savefig(plotFile, format=args.output_format, bbox_inches='tight')
