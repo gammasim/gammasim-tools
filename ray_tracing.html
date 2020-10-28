@@ -1,0 +1,674 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Ray Tracing &mdash; gammasim-tools 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Camera Efficiency" href="camera_efficiency.html" />
+    <link rel="prev" title="MC Model" href="mc_model.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> gammasim-tools
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="framework.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="applications.html">Applications</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="library.html">simtools Library</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="mc_model.html">MC Model</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Ray Tracing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#raytracingmodule">ray_tracing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#psfanalysismodule">psf_analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="camera_efficiency.html">Camera Efficiency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simtel_runner.html">sim_telarray Runner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="util.html">Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="databases.html">Databases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">Conventions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">gammasim-tools</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="library.html">simtools Library</a> &raquo;</li>
+        
+      <li>Ray Tracing</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/ray_tracing.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="ray-tracing">
+<span id="raytracing"></span><h1>Ray Tracing<a class="headerlink" href="#ray-tracing" title="Permalink to this headline">¶</a></h1>
+<p>In this section you find the reference documentation of the Ray Tracing and  PSF Analysis modules.
+The Ray Tracing module (and its main class RayTracing) handles ray tracing simulations, analysis and I/O. It receives as input
+a Telescope Model (see <a class="reference internal" href="mc_model.html#telescope-model"><span class="std std-ref">telescope_model</span></a>) and few more physical parameters (zenith angle, etc).
+At the moment, the RayTracing class includes the whole dish mode (default one) and a single mirror mode.</p>
+<p>The PSF Analysis module supports the Ray Tracing by handling a PSF Image. Its main class PSFImage
+only receives the focal length and the list of photons positions. From that, it can handle the PSF calculation
+and also the PSF image plotting.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="raytracingmodule">ray_tracing</a></p></li>
+<li><p><a class="reference external" href="psfanalysismodule">psf_analysis</a></p></li>
+</ul>
+<div class="section" id="raytracingmodule">
+<span id="id2"></span><h2>ray_tracing<a class="headerlink" href="#raytracingmodule" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-ray_tracing"></span><dl class="py class">
+<dt id="ray_tracing.RayTracing">
+<em class="property">class </em><code class="sig-prename descclassname">ray_tracing.</code><code class="sig-name descname">RayTracing</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">telescopeModel</span></em>, <em class="sig-param"><span class="n">label</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">simtelSourcePath</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">filesLocation</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">singleMirrorMode</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">useRandomFocalLength</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">mirrorNumbers</span><span class="o">=</span><span class="default_value">'all'</span></em>, <em class="sig-param"><span class="n">logger</span><span class="o">=</span><span class="default_value">'ray_tracing'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ray_tracing.html#RayTracing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ray_tracing.RayTracing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for handling ray tracing simulations and analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>label: str</strong></dt><dd><p>Instance label.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 41%" />
+<col style="width: 59%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>simulate(test=False, force=False)</strong></p></td>
+<td><p>Simulate RayTracing using SimtelRunner.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>analyse(export=True, force=False, useRX=False, noTelTransmission=False)</strong></p></td>
+<td><p>Analyze RayTracing, meaning read simtel files, compute psfs and eff areas and store the results in _results.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>exportResults()</strong></p></td>
+<td><p>Export results to a csv file.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>plot(key, **kwargs)</strong></p></td>
+<td><p>Plot key vs off-axis angle.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>plotHistogram(key, **kwargs)</strong></p></td>
+<td><p>Plot histogram of key (d80_cm, d80_deg, eff_area, eff_flen).</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>getMean(key)</strong></p></td>
+<td><p>Get mean value of key(d80_cm, d80_deg, eff_area, eff_flen).</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>getStdDev(key)</strong></p></td>
+<td><p>Get std dev of key(d80_cm, d80_deg, eff_area, eff_flen).</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>images()</strong></p></td>
+<td><p>Get list of PSFImages.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="ray_tracing.RayTracing.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">telescopeModel</span></em>, <em class="sig-param"><span class="n">label</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">simtelSourcePath</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">filesLocation</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">singleMirrorMode</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">useRandomFocalLength</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">mirrorNumbers</span><span class="o">=</span><span class="default_value">'all'</span></em>, <em class="sig-param"><span class="n">logger</span><span class="o">=</span><span class="default_value">'ray_tracing'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ray_tracing.html#RayTracing.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ray_tracing.RayTracing.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>RayTracing init.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>telescopeModel: TelescopeModel</strong></dt><dd><p>Instance of the TelescopeModel class.</p>
+</dd>
+<dt><strong>label: str</strong></dt><dd><p>Instance label.</p>
+</dd>
+<dt><strong>simtelSourcePath: str (or Path), optional</strong></dt><dd><p>Location of sim_telarray installation. If not given, it will be taken from the
+config.yml file.</p>
+</dd>
+<dt><strong>filesLocation: str (or Path), optional</strong></dt><dd><p>Parent location of the output files created by this class. If not given, it will be
+taken from the config.yml file.</p>
+</dd>
+<dt><strong>singleMirrorMode: bool</strong></dt><dd></dd>
+<dt><strong>useRandomFocalLength: bool</strong></dt><dd></dd>
+<dt><strong>logger: str</strong></dt><dd><p>Logger name to use in this instance</p>
+</dd>
+<dt><strong>**kwargs:</strong></dt><dd><p>Physical parameters with units (if applicable). Options: zenithAngle, offAxisAngle,
+sourceDistance, mirrorNumbers</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ray_tracing.RayTracing.analyze">
+<code class="sig-name descname">analyze</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">export</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">force</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">useRX</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">noTelTransmission</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ray_tracing.html#RayTracing.analyze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ray_tracing.RayTracing.analyze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyze RayTracing, meaning read simtel files, compute psfs and eff areas and store the
+results in _results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>export: bool</strong></dt><dd><p>If True, results will be exported to a file automatically. Alternativelly, exportResults
+function can be used.</p>
+</dd>
+<dt><strong>force: bool</strong></dt><dd><p>If True, existing results files will be removed and analysis will be done again.</p>
+</dd>
+<dt><strong>useRX: bool</strong></dt><dd><p>If True, calculations are done using the rx binary provided by sim_telarray. If False,
+calculations are done internally, by the module psf_analysis.</p>
+</dd>
+<dt><strong>noTelTransmission: bool</strong></dt><dd><p>If True, the telescope transmission is not applied.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ray_tracing.RayTracing.exportResults">
+<code class="sig-name descname">exportResults</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ray_tracing.html#RayTracing.exportResults"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ray_tracing.RayTracing.exportResults" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export results to a csv file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ray_tracing.RayTracing.getMean">
+<code class="sig-name descname">getMean</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ray_tracing.html#RayTracing.getMean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ray_tracing.RayTracing.getMean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get mean value of key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>key: str</strong></dt><dd><p>d80_cm, d80_deg, eff_area or eff_flen</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>Mean value of key.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>KeyError</dt><dd><p>If key is not among the valid options.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ray_tracing.RayTracing.getStdDev">
+<code class="sig-name descname">getStdDev</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ray_tracing.html#RayTracing.getStdDev"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ray_tracing.RayTracing.getStdDev" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get std dev of key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>key: str</strong></dt><dd><p>d80_cm, d80_deg, eff_area or eff_flen</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>Srd deviation of key.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>KeyError</dt><dd><p>If key is not among the valid options.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ray_tracing.RayTracing.images">
+<code class="sig-name descname">images</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ray_tracing.html#RayTracing.images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ray_tracing.RayTracing.images" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of PSFImages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>List of PSFImage’s</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ray_tracing.RayTracing.plot">
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">save</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ray_tracing.html#RayTracing.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ray_tracing.RayTracing.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot key vs off-axis angle and save the figure in pdf.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>key: str</strong></dt><dd><p>d80_cm, d80_deg, eff_area or eff_flen</p>
+</dd>
+<dt><strong>save: bool</strong></dt><dd><p>If True, figure will be saved.</p>
+</dd>
+<dt><strong>**kwargs:</strong></dt><dd><p>kwargs for plt.plot</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><dl class="simple">
+<dt>KeyError</dt><dd><p>If key is not among the valid options.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ray_tracing.RayTracing.plotHistogram">
+<code class="sig-name descname">plotHistogram</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ray_tracing.html#RayTracing.plotHistogram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ray_tracing.RayTracing.plotHistogram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot histogram of key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>key: str</strong></dt><dd><p>d80_cm, d80_deg, eff_area or eff_flen</p>
+</dd>
+<dt><strong>**kwargs:</strong></dt><dd><p>kwargs for plt.hist</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><dl class="simple">
+<dt>KeyError</dt><dd><p>If key is not among the valid options.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ray_tracing.RayTracing.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">test</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">force</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ray_tracing.html#RayTracing.simulate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ray_tracing.RayTracing.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulate RayTracing using SimtelRunner.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>test: bool</strong></dt><dd><p>Test flag will make it faster by simulating much fewer photons.</p>
+</dd>
+<dt><strong>force: bool</strong></dt><dd><p>Force flag will remove existing files and simulate again.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="psfanalysismodule">
+<span id="id3"></span><h2>psf_analysis<a class="headerlink" href="#psfanalysismodule" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-psf_analysis"></span><p>Module to analise psf images (e.g. results from ray tracing simulations).
+Main functionalities are: computing centroids, psf containers etc.</p>
+<p>Author: Raul R Prado</p>
+<dl class="py class">
+<dt id="psf_analysis.PSFImage">
+<em class="property">class </em><code class="sig-prename descclassname">psf_analysis.</code><code class="sig-name descname">PSFImage</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">focalLength</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">totalScatteredArea</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">logger</span><span class="o">=</span><span class="default_value">'psf_analysis'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/psf_analysis.html#PSFImage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#psf_analysis.PSFImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Image composed of list of photon positions (2D).</p>
+<p>Load photon list from sim_telarray file and compute centroids, psf containers, effective area,
+as well as plot the image as a 2D histogram.
+Internal units: photon positions in cm internally.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>focalLenght: float</strong></dt><dd><p>Focal length of the system in cm, needed to convert quantities from cm to deg. If None,
+getPSF will only work in cm (not in deg).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 67%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>readSimtelFile(file)</strong></p></td>
+<td><p>Read a photon list produced by sim_telarray.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>getPSF(fraction=0.8, unit=’cm’)</strong></p></td>
+<td><p>Compute and return a PSF container.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>getEffecticeArea()</strong></p></td>
+<td><p>Return effective area under the condition that total area was set given.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>plotImage(**kwargs)</strong></p></td>
+<td><p>Plot image as a 2D histogram</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>plotIntegral(**kwargs)</strong></p></td>
+<td><p>Plot cumulative intensity as a function containing fraction.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="psf_analysis.PSFImage.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">focalLength</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">totalScatteredArea</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">logger</span><span class="o">=</span><span class="default_value">'psf_analysis'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/psf_analysis.html#PSFImage.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#psf_analysis.PSFImage.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>focalLength: float, optional</strong></dt><dd><p>Focal length of the system in cm. If not given, PSF can only be computed in cm.</p>
+</dd>
+<dt><strong>totalScatteredArea: float, optional</strong></dt><dd><p>Scatter area of all photons in cm^2. If not given, effective area cannot be computed.</p>
+</dd>
+<dt><strong>logger: str</strong></dt><dd><p>Logger name to use in this instance</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="psf_analysis.PSFImage.getCumulativeData">
+<code class="sig-name descname">getCumulativeData</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/psf_analysis.html#PSFImage.getCumulativeData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#psf_analysis.PSFImage.getCumulativeData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provide cumulative data (intensity vs radius).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>(radius, intensity)</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="psf_analysis.PSFImage.getEffectiveArea">
+<code class="sig-name descname">getEffectiveArea</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/psf_analysis.html#PSFImage.getEffectiveArea"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#psf_analysis.PSFImage.getEffectiveArea" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return effective area pre calculated</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>float</dt><dd><p>Pre-calculated effective area. None if it could not be calculated (e.g because the total
+scattering area was not set).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="psf_analysis.PSFImage.getImageData">
+<code class="sig-name descname">getImageData</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">centralized</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/psf_analysis.html#PSFImage.getImageData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#psf_analysis.PSFImage.getImageData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provide image data (2D photon positions in cm) as lists.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>centralized: bool</strong></dt><dd><p>Centroid of the image is set to (0, 0) if True.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>(x, y), the photons positions in cm.</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="psf_analysis.PSFImage.getPSF">
+<code class="sig-name descname">getPSF</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fraction</span><span class="o">=</span><span class="default_value">0.8</span></em>, <em class="sig-param"><span class="n">unit</span><span class="o">=</span><span class="default_value">'cm'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/psf_analysis.html#PSFImage.getPSF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#psf_analysis.PSFImage.getPSF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return PSF</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>fraction: float</strong></dt><dd><p>Fraction of photons within the containing radius.</p>
+</dd>
+<dt><strong>unit: str</strong></dt><dd><p>‘cm’ or ‘deg’. ‘deg’ will not work if focal length was not set.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>float:</dt><dd><p>Containing diameter for a certain intensity fraction (PSF).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="psf_analysis.PSFImage.plotCumulative">
+<code class="sig-name descname">plotCumulative</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/psf_analysis.html#PSFImage.plotCumulative"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#psf_analysis.PSFImage.plotCumulative" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot cumulative data (intensity vs radius).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="psf_analysis.PSFImage.plotImage">
+<code class="sig-name descname">plotImage</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">centralized</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/psf_analysis.html#PSFImage.plotImage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#psf_analysis.PSFImage.plotImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot 2D image as histogram (in cm).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>centralized: bool</strong></dt><dd><p>Centroid of the image is set to (0, 0) if True.</p>
+</dd>
+<dt><strong>**kwargs:</strong></dt><dd><p>image_* for the histogram plot and psf_* for the psf circle.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="psf_analysis.PSFImage.readSimtelFile">
+<code class="sig-name descname">readSimtelFile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/psf_analysis.html#PSFImage.readSimtelFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#psf_analysis.PSFImage.readSimtelFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read photon list file generated by sim_telarray and store the photon positions (2D).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>file: str</strong></dt><dd><p>Name of sim_telarray file with photon list.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><dl class="simple">
+<dt>RuntimeError</dt><dd><p>If photon positions X and Y are not compatible or are empty.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="psf_analysis.PSFImage.setEffectiveArea">
+<code class="sig-name descname">setEffectiveArea</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/psf_analysis.html#PSFImage.setEffectiveArea"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#psf_analysis.PSFImage.setEffectiveArea" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set effective area</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>value: float</strong></dt><dd><p>Effective area</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="psf_analysis.PSFImage.setPSF">
+<code class="sig-name descname">setPSF</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">fraction</span><span class="o">=</span><span class="default_value">0.8</span></em>, <em class="sig-param"><span class="n">unit</span><span class="o">=</span><span class="default_value">'cm'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/psf_analysis.html#PSFImage.setPSF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#psf_analysis.PSFImage.setPSF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set PSF calculated from other methods</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>value: float</strong></dt><dd><p>PSF value to be set</p>
+</dd>
+<dt><strong>fraction: float</strong></dt><dd><p>Fraction of photons within the containing radius.</p>
+</dd>
+<dt><strong>unit: str</strong></dt><dd><p>‘cm’ or ‘deg’. ‘deg’ will not work if focal length was not set.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="camera_efficiency.html" class="btn btn-neutral float-right" title="Camera Efficiency" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="mc_model.html" class="btn btn-neutral float-left" title="MC Model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, gammasim-tools developers
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,351 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>io_handler &mdash; gammasim-tools 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> gammasim-tools
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../framework.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../applications.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library.html">simtools Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../databases.html">Databases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conventions.html">Conventions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">gammasim-tools</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>io_handler</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for io_handler</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39; Module to handle input and output conventions. &#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span> <span class="nn">simtools.config</span> <span class="k">as</span> <span class="nn">cfg</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;getModelOutputDirectory&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;getRayTracingOutputDirectory&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;getCorsikaOutputDirectory&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;getTestDataFile&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;getTestPlotFile&#39;</span>
+<span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">getOutputDirectory</span><span class="p">(</span><span class="n">filesLocation</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Get main output directory for a generic mode</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filesLocation: str, or Path</span>
+<span class="sd">        Main location of the output files.</span>
+<span class="sd">    label: str</span>
+<span class="sd">        Instance label.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">today</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span>
+    <span class="n">labelDir</span> <span class="o">=</span> <span class="n">label</span> <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;d-&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">today</span><span class="p">)</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filesLocation</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;simtools-output&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">labelDir</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
+    <span class="n">path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="getModelOutputDirectory"><a class="viewcode-back" href="../framework.html#io_handler.getModelOutputDirectory">[docs]</a><span class="k">def</span> <span class="nf">getModelOutputDirectory</span><span class="p">(</span><span class="n">filesLocation</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Get output directory for model related files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filesLocation: str, or Path</span>
+<span class="sd">        Main location of the output files.</span>
+<span class="sd">    label: str</span>
+<span class="sd">        Instance label.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">getOutputDirectory</span><span class="p">(</span><span class="n">filesLocation</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="getRayTracingOutputDirectory"><a class="viewcode-back" href="../framework.html#io_handler.getRayTracingOutputDirectory">[docs]</a><span class="k">def</span> <span class="nf">getRayTracingOutputDirectory</span><span class="p">(</span><span class="n">filesLocation</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Get output directory for ray tracing related files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filesLocation: str, or Path</span>
+<span class="sd">        Main location of the output files.</span>
+<span class="sd">    label: str</span>
+<span class="sd">        Instance label.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">getOutputDirectory</span><span class="p">(</span><span class="n">filesLocation</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="s1">&#39;ray-tracing&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="getCorsikaOutputDirectory"><a class="viewcode-back" href="../framework.html#io_handler.getCorsikaOutputDirectory">[docs]</a><span class="k">def</span> <span class="nf">getCorsikaOutputDirectory</span><span class="p">(</span><span class="n">filesLocation</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Get output directory for corsika related files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filesLocation: str, or Path</span>
+<span class="sd">        Main location of the output files.</span>
+<span class="sd">    label: str</span>
+<span class="sd">        Instance label.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">getOutputDirectory</span><span class="p">(</span><span class="n">filesLocation</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="s1">&#39;corsika&#39;</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">getCameraEfficiencyOutputDirectory</span><span class="p">(</span><span class="n">filesLocation</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Get output directory for camera efficiency related files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filesLocation: str, or Path</span>
+<span class="sd">        Main location of the output files.</span>
+<span class="sd">    label: str</span>
+<span class="sd">        Instance label.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">getOutputDirectory</span><span class="p">(</span><span class="n">filesLocation</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="s1">&#39;camera-efficiency&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">getApplicationOutputDirectory</span><span class="p">(</span><span class="n">filesLocation</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Get output directory for applications related files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filesLocation: str, or Path</span>
+<span class="sd">        Main location of the output files.</span>
+<span class="sd">    label: str</span>
+<span class="sd">        Instance label.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">getOutputDirectory</span><span class="p">(</span><span class="n">filesLocation</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="s1">&#39;application&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="getTestDataFile"><a class="viewcode-back" href="../framework.html#io_handler.getTestDataFile">[docs]</a><span class="k">def</span> <span class="nf">getTestDataFile</span><span class="p">(</span><span class="n">fileName</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Get path of a test file, using the  testDataLocation taken from the config file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filesName: str</span>
+<span class="sd">        File name</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;testDataLocation&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;test-data&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">fileName</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="getTestPlotFile"><a class="viewcode-back" href="../framework.html#io_handler.getTestPlotFile">[docs]</a><span class="k">def</span> <span class="nf">getTestPlotFile</span><span class="p">(</span><span class="n">fileName</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Get path of a test plot file, using the  testDataLocation taken from the config file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filesName: str</span>
+<span class="sd">        File name</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;testDataLocation&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;test-plots&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">fileName</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, gammasim-tools developers
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

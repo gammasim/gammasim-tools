@@ -1,0 +1,404 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Camera Efficiency &mdash; gammasim-tools 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="sim_telarray Runner" href="simtel_runner.html" />
+    <link rel="prev" title="Ray Tracing" href="ray_tracing.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> gammasim-tools
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="framework.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="applications.html">Applications</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="library.html">simtools Library</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="mc_model.html">MC Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ray_tracing.html">Ray Tracing</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Camera Efficiency</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-camera_efficiency">camera_efficiency</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simtel_runner.html">sim_telarray Runner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="util.html">Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="databases.html">Databases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">Conventions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">gammasim-tools</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="library.html">simtools Library</a> &raquo;</li>
+        
+      <li>Camera Efficiency</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/camera_efficiency.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="camera-efficiency">
+<span id="cameraefficiency"></span><h1>Camera Efficiency<a class="headerlink" href="#camera-efficiency" title="Permalink to this headline">¶</a></h1>
+<p>In this section you find the reference documentation of the Camera Efficiency modules.
+The main functionality of this module is to provide an interface to the testeff program
+provided by simtel_array. A Telescope Model (see <a class="reference internal" href="mc_model.html#telescope-model"><span class="std std-ref">telescope_model</span></a>) and few more
+physical parameters (zenith angle, etc) are required inputs.</p>
+<div class="section" id="module-camera_efficiency">
+<span id="id1"></span><span id="cameraefficiencymodule"></span><h2>camera_efficiency<a class="headerlink" href="#module-camera_efficiency" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="camera_efficiency.CameraEfficiency">
+<em class="property">class </em><code class="sig-prename descclassname">camera_efficiency.</code><code class="sig-name descname">CameraEfficiency</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">telescopeModel</span></em>, <em class="sig-param"><span class="n">label</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">simtelSourcePath</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">filesLocation</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">logger</span><span class="o">=</span><span class="default_value">'camera_efficiency'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/camera_efficiency.html#CameraEfficiency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camera_efficiency.CameraEfficiency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for handling camera efficiency simulations and analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>label: str</strong></dt><dd><p>Instance label.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 39%" />
+<col style="width: 61%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>simulate(force=False)</strong></p></td>
+<td><p>Simulate camera efficiency using testeff from sim_telarray.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>analyse(export=True, force=False)</strong></p></td>
+<td><p>Analyze output from testeff and store results in _results.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>exportResults()</strong></p></td>
+<td><p>Export results to a csv file.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>plot(key, **kwargs)</strong></p></td>
+<td><p>Plot key vs wavelength, where key may be cherenkov or nsb.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="camera_efficiency.CameraEfficiency.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">telescopeModel</span></em>, <em class="sig-param"><span class="n">label</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">simtelSourcePath</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">filesLocation</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">logger</span><span class="o">=</span><span class="default_value">'camera_efficiency'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/camera_efficiency.html#CameraEfficiency.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camera_efficiency.CameraEfficiency.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>CameraEfficiency init.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>telescopeModel: TelescopeModel</strong></dt><dd><p>Instance of the TelescopeModel class.</p>
+</dd>
+<dt><strong>label: str</strong></dt><dd><p>Instance label, optional.</p>
+</dd>
+<dt><strong>simtelSourcePath: str (or Path), optional.</strong></dt><dd><p>Location of sim_telarray installation. If not given, it will be taken from the
+config.yml file.</p>
+</dd>
+<dt><strong>filesLocation: str (or Path), optional.</strong></dt><dd><p>Parent location of the output files created by this class. If not given, it will be
+taken from the config.yml file.</p>
+</dd>
+<dt><strong>logger: str</strong></dt><dd><p>Logger name to use in this instance</p>
+</dd>
+<dt><strong>**kwargs:</strong></dt><dd><p>Physical parameters with units (if applicable). Options: zenithAngle (default 20 deg).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="camera_efficiency.CameraEfficiency.analyze">
+<code class="sig-name descname">analyze</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">export</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">force</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/camera_efficiency.html#CameraEfficiency.analyze"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camera_efficiency.CameraEfficiency.analyze" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyze camera efficiency output file and store the results in _results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>export: bool</strong></dt><dd><p>If True, results will be exported to a file automatically. Alternatively, exportResults
+function can be used.</p>
+</dd>
+<dt><strong>force: bool</strong></dt><dd><p>If True, existing results files will be removed and analysis will be done again.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="camera_efficiency.CameraEfficiency.calcCameraEfficiency">
+<code class="sig-name descname">calcCameraEfficiency</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/camera_efficiency.html#CameraEfficiency.calcCameraEfficiency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camera_efficiency.CameraEfficiency.calcCameraEfficiency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the camera nominal efficiency including gaps (as defined in B-TEL-1170).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="camera_efficiency.CameraEfficiency.calcReflectivity">
+<code class="sig-name descname">calcReflectivity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/camera_efficiency.html#CameraEfficiency.calcReflectivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camera_efficiency.CameraEfficiency.calcReflectivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the Cherenkov spectrum weighted reflectivity in the range 300-550 nm.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="camera_efficiency.CameraEfficiency.calcTelEfficiency">
+<code class="sig-name descname">calcTelEfficiency</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/camera_efficiency.html#CameraEfficiency.calcTelEfficiency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camera_efficiency.CameraEfficiency.calcTelEfficiency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the telescope total efficiency including gaps (as defined in A-PERF-2020).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="camera_efficiency.CameraEfficiency.calcTotEfficiency">
+<code class="sig-name descname">calcTotEfficiency</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">telEffeciency</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/camera_efficiency.html#CameraEfficiency.calcTotEfficiency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camera_efficiency.CameraEfficiency.calcTotEfficiency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the telescope total efficiency including gaps (as defined in A-PERF-2020).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>telEffeciency: float</strong></dt><dd><p>The telescope efficiency as calculated by calcTelEfficiency()</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="camera_efficiency.CameraEfficiency.exportResults">
+<code class="sig-name descname">exportResults</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/camera_efficiency.html#CameraEfficiency.exportResults"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camera_efficiency.CameraEfficiency.exportResults" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export results to a csv file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="camera_efficiency.CameraEfficiency.plot">
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/camera_efficiency.html#CameraEfficiency.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camera_efficiency.CameraEfficiency.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot key vs wavelength.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>key: str</strong></dt><dd><p>cherenkov or nsb</p>
+</dd>
+<dt><strong>**kwargs:</strong></dt><dd><p>kwargs for plt.plot</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><dl class="simple">
+<dt>KeyError</dt><dd><p>If key is not among the valid options.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="camera_efficiency.CameraEfficiency.plotCherenkovEfficiency">
+<code class="sig-name descname">plotCherenkovEfficiency</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/camera_efficiency.html#CameraEfficiency.plotCherenkovEfficiency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camera_efficiency.CameraEfficiency.plotCherenkovEfficiency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot cherenkov efficiency vc wavelength.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>plt</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="camera_efficiency.CameraEfficiency.plotNSBEfficiency">
+<code class="sig-name descname">plotNSBEfficiency</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/camera_efficiency.html#CameraEfficiency.plotNSBEfficiency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camera_efficiency.CameraEfficiency.plotNSBEfficiency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot NSB efficiency vc wavelength.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>plt</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="camera_efficiency.CameraEfficiency.simulate">
+<code class="sig-name descname">simulate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">force</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/camera_efficiency.html#CameraEfficiency.simulate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#camera_efficiency.CameraEfficiency.simulate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulate camera efficiency using testeff.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>force: bool</strong></dt><dd><p>Force flag will remove existing files and simulate again.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="simtel_runner.html" class="btn btn-neutral float-right" title="sim_telarray Runner" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="ray_tracing.html" class="btn btn-neutral float-left" title="Ray Tracing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, gammasim-tools developers
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

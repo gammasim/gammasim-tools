@@ -1,0 +1,460 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>util.general &mdash; gammasim-tools 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> gammasim-tools
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../framework.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../applications.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../library.html">simtools Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../databases.html">Databases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conventions.html">Conventions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">gammasim-tools</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>util.general</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for util.general</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;collectArguments&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;collectKwargs&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;setDefaultKwargs&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;sortArrays&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;collectFinalLines&#39;</span>
+<span class="p">]</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">ArgumentWithWrongUnit</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">ArgumentCannotBeCollected</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+
+<span class="k">def</span> <span class="nf">_unitsAreConvertible</span><span class="p">(</span><span class="n">quantity_1</span><span class="p">,</span> <span class="n">quantity_2</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    quantity_1: astropy.Quantity</span>
+<span class="sd">    quantity_2: astropy.Quantity</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Bool</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">quantity_1</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">quantity_2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="k">def</span> <span class="nf">_unitIsValid</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">unit</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    quantity: astropy.Quantity</span>
+<span class="sd">    unit: astropy.unit</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Bool</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">unit</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">quantity</span><span class="o">.</span><span class="n">Quantity</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_unitsAreConvertible</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">unit</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_convertUnit</span><span class="p">(</span><span class="n">quantity</span><span class="p">,</span> <span class="n">unit</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    quantity: astropy.Quantity</span>
+<span class="sd">    unit: astropy.unit</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    astropy.quantity</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">quantity</span> <span class="k">if</span> <span class="n">unit</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">quantity</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+
+
+<div class="viewcode-block" id="collectArguments"><a class="viewcode-back" href="../../util.html#util.general.collectArguments">[docs]</a><span class="k">def</span> <span class="nf">collectArguments</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">allInputs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Collect certain arguments and validate them.</span>
+<span class="sd">    To be used during initialization of classes, where kwargs with physical meaning and units are</span>
+<span class="sd">    expected.</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+
+<span class="sd">    In ray_tracing class,</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        collectArguments(</span>
+<span class="sd">            self,</span>
+<span class="sd">            args=[&#39;zenithAngle&#39;, &#39;offAxisAngle&#39;, &#39;sourceDistance&#39;],</span>
+<span class="sd">            allInputs=self.ALL_INPUTS,</span>
+<span class="sd">            **kwargs</span>
+<span class="sd">        )</span>
+
+<span class="sd">    where,</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        ALL_INPUTS = {</span>
+<span class="sd">            &#39;zenithAngle&#39;: {&#39;default&#39;: 20, &#39;unit&#39;: u.deg},</span>
+<span class="sd">            &#39;offAxisAngle&#39;: {&#39;default&#39;: [0, 1.5, 3.0], &#39;unit&#39;: u.deg, &#39;isList&#39;: True},</span>
+<span class="sd">            &#39;sourceDistance&#39;: {&#39;default&#39;: 10, &#39;unit&#39;: u.km},</span>
+<span class="sd">            &#39;mirrorNumbers&#39;: {&#39;default&#39;: [1], &#39;unit&#39;: None, &#39;isList&#39;: True}</span>
+<span class="sd">        }</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    obj: class instance (self)</span>
+<span class="sd">    args: list of str</span>
+<span class="sd">        List of names of the parameters to be collected.</span>
+<span class="sd">    allInputs: dict</span>
+<span class="sd">        Dict with info about all the expected inputs. See example.</span>
+<span class="sd">    **kwargs:</span>
+<span class="sd">        kwargs from the input arguments.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">processSingleArg</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">inArgName</span><span class="p">,</span> <span class="n">argG</span><span class="p">,</span> <span class="n">argD</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">_unitIsValid</span><span class="p">(</span><span class="n">argG</span><span class="p">,</span> <span class="n">argD</span><span class="p">[</span><span class="s1">&#39;unit&#39;</span><span class="p">]):</span>
+            <span class="n">obj</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">inArgName</span><span class="p">]</span> <span class="o">=</span> <span class="n">_convertUnit</span><span class="p">(</span><span class="n">argG</span><span class="p">,</span> <span class="n">argD</span><span class="p">[</span><span class="s1">&#39;unit&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Argument </span><span class="si">{}</span><span class="s1"> given with wrong unit&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="n">ArgumentWithWrongUnit</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">processListArg</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">inArgName</span><span class="p">,</span> <span class="n">argG</span><span class="p">,</span> <span class="n">argD</span><span class="p">):</span>
+        <span class="n">outArg</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">argG</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">argG</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">argG</span> <span class="o">=</span> <span class="p">[</span><span class="n">argG</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">aa</span> <span class="ow">in</span> <span class="n">argG</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_unitIsValid</span><span class="p">(</span><span class="n">aa</span><span class="p">,</span> <span class="n">argD</span><span class="p">[</span><span class="s1">&#39;unit&#39;</span><span class="p">]):</span>
+                <span class="n">outArg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_convertUnit</span><span class="p">(</span><span class="n">aa</span><span class="p">,</span> <span class="n">argD</span><span class="p">[</span><span class="s1">&#39;unit&#39;</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Argument </span><span class="si">{}</span><span class="s1"> given with wrong unit&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
+                <span class="k">raise</span> <span class="n">ArgumentWithWrongUnit</span><span class="p">()</span>
+        <span class="n">obj</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">inArgName</span><span class="p">]</span> <span class="o">=</span> <span class="n">outArg</span>
+
+    <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+        <span class="n">inArgName</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">arg</span>
+        <span class="n">argData</span> <span class="o">=</span> <span class="n">allInputs</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">arg</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allInputs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Arg </span><span class="si">{}</span><span class="s1"> cannot be collected because it is not in allInputs&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">ArgumentCannotBeCollected</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">argGiven</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span>
+            <span class="c1"># List</span>
+            <span class="k">if</span> <span class="s1">&#39;isList&#39;</span> <span class="ow">in</span> <span class="n">argData</span> <span class="ow">and</span> <span class="n">argData</span><span class="p">[</span><span class="s1">&#39;isList&#39;</span><span class="p">]:</span>
+                <span class="n">processListArg</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">inArgName</span><span class="p">,</span> <span class="n">argGiven</span><span class="p">,</span> <span class="n">argData</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># Not a list</span>
+                <span class="n">processSingleArg</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">inArgName</span><span class="p">,</span> <span class="n">argGiven</span><span class="p">,</span> <span class="n">argData</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="s1">&#39;default&#39;</span> <span class="ow">in</span> <span class="n">argData</span><span class="p">:</span>
+            <span class="n">obj</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">inArgName</span><span class="p">]</span> <span class="o">=</span> <span class="n">argData</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Argument (without default) </span><span class="si">{}</span><span class="s1"> was not given&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
+    <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="collectKwargs"><a class="viewcode-back" href="../../util.html#util.general.collectKwargs">[docs]</a><span class="k">def</span> <span class="nf">collectKwargs</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">inKwargs</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Collect kwargs of the type label_* and return them as a dict.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    label: str</span>
+<span class="sd">    inKwargs: dict</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Dict with the collected kwargs.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">outKwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">inKwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">label</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+            <span class="n">outKwargs</span><span class="p">[</span><span class="n">key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">label</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">outKwargs</span></div>
+
+
+<div class="viewcode-block" id="setDefaultKwargs"><a class="viewcode-back" href="../../util.html#util.general.setDefaultKwargs">[docs]</a><span class="k">def</span> <span class="nf">setDefaultKwargs</span><span class="p">(</span><span class="n">inKwargs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Fill in a dict with a set of default kwargs and return it.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    inKwargs: dict</span>
+<span class="sd">        Input dict to be filled in with the default kwargs.</span>
+<span class="sd">    **kwargs:</span>
+<span class="sd">        Default kwargs to be set.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Dict containing the default kwargs.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">par</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">par</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">inKwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">inKwargs</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">inKwargs</span></div>
+
+
+<span class="k">def</span> <span class="nf">sortArrays</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">orderArray</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">newArgs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">orderArray</span><span class="p">,</span> <span class="n">arg</span><span class="p">)))</span>
+        <span class="n">newArgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">newArgs</span>
+
+
+<div class="viewcode-block" id="collectFinalLines"><a class="viewcode-back" href="../../util.html#util.general.collectFinalLines">[docs]</a><span class="k">def</span> <span class="nf">collectFinalLines</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">nLines</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file: str or Path</span>
+<span class="sd">        File to collect the lines from.</span>
+<span class="sd">    nLines: int</span>
+<span class="sd">        Number of lines to be collected.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str: lines</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">fileInLines</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">fileInLines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="n">collectedLines</span> <span class="o">=</span> <span class="n">fileInLines</span><span class="p">[</span><span class="o">-</span><span class="n">nLines</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">ll</span> <span class="ow">in</span> <span class="n">collectedLines</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="n">ll</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+<span class="k">def</span> <span class="nf">getLogLevelFromUser</span><span class="p">(</span><span class="n">logLevel</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Map between logging level from the user to logging levels of the logging module.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    logLevel: str</span>
+<span class="sd">        Log level from the user</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    logging.LEVEL</span>
+<span class="sd">        The requested logging level to be used as input to logging.setLevel()</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">possibleLevels</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;info&#39;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+        <span class="s1">&#39;debug&#39;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span>
+        <span class="s1">&#39;warn&#39;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>
+        <span class="s1">&#39;warning&#39;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>
+        <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
+        <span class="s1">&#39;critical&#39;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">CRITICAL</span>
+    <span class="p">}</span>
+    <span class="n">logLevelLower</span> <span class="o">=</span> <span class="n">logLevel</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">logLevelLower</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">possibleLevels</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">&#39;&quot;</span><span class="si">{}</span><span class="s1">&quot; is not a logging level, only possible ones are </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">logLevel</span><span class="p">,</span>
+                <span class="nb">list</span><span class="p">(</span><span class="n">possibleLevels</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">possibleLevels</span><span class="p">[</span><span class="n">logLevelLower</span><span class="p">]</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, gammasim-tools developers
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

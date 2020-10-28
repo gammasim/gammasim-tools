@@ -1,0 +1,849 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>util.names &mdash; gammasim-tools 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> gammasim-tools
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../framework.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../applications.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../library.html">simtools Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../databases.html">Databases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conventions.html">Conventions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">gammasim-tools</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>util.names</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for util.names</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;validateModelVersionName&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;validateSimtelModeName&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;validateSiteName&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;validateArrayName&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;validateTelescopeName&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;validateCameraName&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;convertTelescopeNameToYaml&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;splitTelescopeName&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;getSiteFromTelescopeName&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;rayTracingFileName&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;simtelConfigFileName&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;simtelSingleMirrorListFileName&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;corsikaConfigFileName&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;corsikaOutputFileName&#39;</span>
+<span class="p">]</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="validateCameraName"><a class="viewcode-back" href="../../util.html#util.names.validateCameraName">[docs]</a><span class="k">def</span> <span class="nf">validateCameraName</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Validate a camera name.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If name is not valid.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name: str</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Validated name.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">validateName</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">allCameraNames</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="validateModelVersionName"><a class="viewcode-back" href="../../util.html#util.names.validateModelVersionName">[docs]</a><span class="k">def</span> <span class="nf">validateModelVersionName</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Validate a model version name.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If name is not valid.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name: str</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Validated name.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">validateName</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">allModelVersionNames</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="validateSimtelModeName"><a class="viewcode-back" href="../../util.html#util.names.validateSimtelModeName">[docs]</a><span class="k">def</span> <span class="nf">validateSimtelModeName</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Validate a sim_telarray mode name.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If name is not valid.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name: str</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Validated name.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">validateName</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">allSimtelModeNames</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="validateSiteName"><a class="viewcode-back" href="../../util.html#util.names.validateSiteName">[docs]</a><span class="k">def</span> <span class="nf">validateSiteName</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Validate a site name.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If name is not valid.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name: str</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Validated name.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">validateName</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">allSiteNames</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="validateArrayName"><a class="viewcode-back" href="../../util.html#util.names.validateArrayName">[docs]</a><span class="k">def</span> <span class="nf">validateArrayName</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Validate a array name.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If name is not valid.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name: str</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Validated name.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">validateName</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">allArrayNames</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">validateName</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">allNames</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Validate a name given the allNames options. For each key in allNames, a list of options is</span>
+<span class="sd">    given. If name is in this list, the key name is returned.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If name is not valid.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name: str</span>
+<span class="sd">    allNames: dict</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Validated name.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">isValidName</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">allNames</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Invalid name </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">mainName</span><span class="p">,</span> <span class="n">listOfNames</span> <span class="ow">in</span> <span class="n">allNames</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">listOfNames</span> <span class="o">+</span> <span class="p">[</span><span class="n">mainName</span><span class="o">.</span><span class="n">lower</span><span class="p">()]:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="n">mainName</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Correcting name </span><span class="si">{}</span><span class="s1"> -&gt; </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">mainName</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">mainName</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span> <span class="nf">isValidName</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">allNames</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name: str</span>
+<span class="sd">    allNames: dict</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">mainName</span> <span class="ow">in</span> <span class="n">allNames</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">allNames</span><span class="p">[</span><span class="n">mainName</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">mainName</span><span class="o">.</span><span class="n">lower</span><span class="p">()]:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="validateTelescopeName"><a class="viewcode-back" href="../../util.html#util.names.validateTelescopeName">[docs]</a><span class="k">def</span> <span class="nf">validateTelescopeName</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Validate a telescope name.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If name is not valid.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name: str</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Validated name.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">telSite</span><span class="p">,</span> <span class="n">telClass</span><span class="p">,</span> <span class="n">telType</span> <span class="o">=</span> <span class="n">splitTelescopeName</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">telSite</span> <span class="o">=</span> <span class="n">validateSiteName</span><span class="p">(</span><span class="n">telSite</span><span class="p">)</span>
+    <span class="n">telClass</span> <span class="o">=</span> <span class="n">validateName</span><span class="p">(</span><span class="n">telClass</span><span class="p">,</span> <span class="n">allTelescopeClassNames</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;flashcam&#39;</span> <span class="ow">in</span> <span class="n">telType</span><span class="p">:</span>
+        <span class="n">telType</span> <span class="o">=</span> <span class="n">telType</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;flashcam&#39;</span><span class="p">,</span> <span class="s1">&#39;FlashCam&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;nectarcam&#39;</span> <span class="ow">in</span> <span class="n">telType</span><span class="p">:</span>
+        <span class="n">telType</span> <span class="o">=</span> <span class="n">telType</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;nectarcam&#39;</span><span class="p">,</span> <span class="s1">&#39;NectarCam&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;1m&#39;</span> <span class="ow">in</span> <span class="n">telType</span><span class="p">:</span>
+        <span class="n">telType</span> <span class="o">=</span> <span class="n">telType</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;1m&#39;</span><span class="p">,</span> <span class="s1">&#39;1M&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;gct&#39;</span> <span class="ow">in</span> <span class="n">telType</span><span class="p">:</span>
+        <span class="n">telType</span> <span class="o">=</span> <span class="n">telType</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;gct&#39;</span><span class="p">,</span> <span class="s1">&#39;GCT&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;astri&#39;</span> <span class="ow">in</span> <span class="n">telType</span><span class="p">:</span>
+        <span class="n">telType</span> <span class="o">=</span> <span class="n">telType</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;astri&#39;</span><span class="p">,</span> <span class="s1">&#39;ASTRI&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;-d&#39;</span> <span class="ow">in</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">telType</span><span class="p">:</span>
+        <span class="n">telType</span> <span class="o">=</span> <span class="n">telType</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">telSite</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">telClass</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">telType</span></div>
+
+
+<div class="viewcode-block" id="splitTelescopeName"><a class="viewcode-back" href="../../util.html#util.names.splitTelescopeName">[docs]</a><span class="k">def</span> <span class="nf">splitTelescopeName</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Split a telescope name into site, class and type.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If name is not valid.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name: str</span>
+<span class="sd">        Telescope name.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str, str, str</span>
+<span class="sd">        Site (South or North), class (LST, MST, SST ...) and type (any complement).</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">nameParts</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+    <span class="n">thisSite</span> <span class="o">=</span> <span class="n">nameParts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">telClass</span> <span class="o">=</span> <span class="n">nameParts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">telType</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nameParts</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
+    <span class="k">return</span> <span class="n">thisSite</span><span class="p">,</span> <span class="n">telClass</span><span class="p">,</span> <span class="n">telType</span></div>
+
+
+<div class="viewcode-block" id="getSiteFromTelescopeName"><a class="viewcode-back" href="../../util.html#util.names.getSiteFromTelescopeName">[docs]</a><span class="k">def</span> <span class="nf">getSiteFromTelescopeName</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Get site name (South or North) from the (validated) telescope name.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name: str</span>
+<span class="sd">        Telescope name.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Site name (South or North).</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">nameParts</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+    <span class="n">thisSite</span> <span class="o">=</span> <span class="n">validateSiteName</span><span class="p">(</span><span class="n">nameParts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">thisSite</span></div>
+
+
+<div class="viewcode-block" id="convertTelescopeNameToYaml"><a class="viewcode-back" href="../../util.html#util.names.convertTelescopeNameToYaml">[docs]</a><span class="k">def</span> <span class="nf">convertTelescopeNameToYaml</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Get telescope name following the old convention (yaml files) from the current telescope name.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name: str</span>
+<span class="sd">        Telescope name.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Telescope name (old convention).</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">telSite</span><span class="p">,</span> <span class="n">telClass</span><span class="p">,</span> <span class="n">telType</span> <span class="o">=</span> <span class="n">splitTelescopeName</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">newName</span> <span class="o">=</span> <span class="n">telClass</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">telType</span>
+    <span class="n">oldNames</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;SST-D&#39;</span><span class="p">:</span> <span class="s1">&#39;SST&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;SST-1M&#39;</span><span class="p">:</span> <span class="s1">&#39;SST-1M&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;SST-ASTRI&#39;</span><span class="p">:</span> <span class="s1">&#39;SST-2M-ASTRI&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;SST-GCT&#39;</span><span class="p">:</span> <span class="s1">&#39;SST-2M-GCT-S&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;MST-FlashCam-D&#39;</span><span class="p">:</span> <span class="s1">&#39;MST-FlashCam&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;MST-NectarCam-D&#39;</span><span class="p">:</span> <span class="s1">&#39;MST-NectarCam&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;SCT-D&#39;</span><span class="p">:</span> <span class="s1">&#39;SCT&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;LST-D234&#39;</span><span class="p">:</span> <span class="s1">&#39;LST&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;LST-1&#39;</span><span class="p">:</span> <span class="s1">&#39;LST&#39;</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">newName</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">oldNames</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Telescope name </span><span class="si">{}</span><span class="s1"> could not be converted to yml names&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">oldNames</span><span class="p">[</span><span class="n">newName</span><span class="p">]</span></div>
+
+
+<span class="n">allTelescopeClassNames</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;SST&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;sst&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;MST&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;mst&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;SCT&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;sct&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;LST&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;lst&#39;</span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="n">allCameraNames</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;SST&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;sst&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;ASTRI&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;astri&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;GCT&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;gct&#39;</span><span class="p">,</span> <span class="s1">&#39;gct-s&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;1M&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;1m&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;FlashCam&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;flashcam&#39;</span><span class="p">,</span> <span class="s1">&#39;flash-cam&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;NectarCam&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;nectarcam&#39;</span><span class="p">,</span> <span class="s1">&#39;nectar-cam&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;SCT&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;sct&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;LST&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;lst&#39;</span><span class="p">]</span>
+<span class="p">}</span>
+
+
+<span class="n">allSiteNames</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;South&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;paranal&#39;</span><span class="p">,</span> <span class="s1">&#39;south&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;North&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;lapalma&#39;</span><span class="p">,</span> <span class="s1">&#39;north&#39;</span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="n">allModelVersionNames</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;prod3_compatible&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;p3&#39;</span><span class="p">,</span> <span class="s1">&#39;prod3&#39;</span><span class="p">,</span> <span class="s1">&#39;prod3b&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;prod4&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;p4&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;post_prod3_updates&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;2018-11-07&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;2019-02-22&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;2019-05-13&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;2019-11-20&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;2019-12-30&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;2020-02-26&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;2020-06-28&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;prod5&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;prod4-prototype&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="s1">&#39;Current&#39;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="s1">&#39;Latest&#39;</span><span class="p">:</span> <span class="p">[]</span>
+<span class="p">}</span>
+
+<span class="n">allSimtelModeNames</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;RayTracing&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;raytracing&#39;</span><span class="p">,</span> <span class="s1">&#39;ray-tracing&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;RayTracingSingleMirror&#39;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s1">&#39;raytracing-singlemirror&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ray-tracing-singlemirror&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ray-tracing-single-mirror&#39;</span>
+    <span class="p">],</span>
+    <span class="s1">&#39;Trigger&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;trigger&#39;</span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="n">allArrayNames</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;4LST&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;4-lst&#39;</span><span class="p">,</span> <span class="s1">&#39;4lst&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;1LST&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;1-lst&#39;</span><span class="p">,</span> <span class="s1">&#39;1lst&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;4MST&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;4-mst&#39;</span><span class="p">,</span> <span class="s1">&#39;4mst&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;1MST&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;1-mst&#39;</span><span class="p">,</span> <span class="s1">&#39;mst&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;4SST&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;4-sst&#39;</span><span class="p">,</span> <span class="s1">&#39;4sst&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;1SST&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;1-sst&#39;</span><span class="p">,</span> <span class="s1">&#39;sst&#39;</span><span class="p">]</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="simtelConfigFileName"><a class="viewcode-back" href="../../util.html#util.names.simtelConfigFileName">[docs]</a><span class="k">def</span> <span class="nf">simtelConfigFileName</span><span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="n">telescopeName</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    sim_telarray config file name.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    version: str</span>
+<span class="sd">        Version of the model.</span>
+<span class="sd">    telescopeName: str</span>
+<span class="sd">        North-LST-1, South-MST-FlashCam, ...</span>
+<span class="sd">    label: str</span>
+<span class="sd">        Instance label.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        File name.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;CTA-</span><span class="si">{}</span><span class="s1">-</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="n">telescopeName</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;.cfg&#39;</span>
+    <span class="k">return</span> <span class="n">name</span></div>
+
+
+<div class="viewcode-block" id="simtelSingleMirrorListFileName"><a class="viewcode-back" href="../../util.html#util.names.simtelSingleMirrorListFileName">[docs]</a><span class="k">def</span> <span class="nf">simtelSingleMirrorListFileName</span><span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="n">telescopeName</span><span class="p">,</span> <span class="n">mirrorNumber</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    sim_telarray mirror list file with a single mirror.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    version: str</span>
+<span class="sd">        Version of the model.</span>
+<span class="sd">    telescopeName: str</span>
+<span class="sd">        North-LST-1, South-MST-FlashCam, ...</span>
+<span class="sd">    mirrorNumber: int</span>
+<span class="sd">        Mirror number.</span>
+<span class="sd">    label: str</span>
+<span class="sd">        Instance label.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        File name.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;CTA-single-mirror-list-</span><span class="si">{}</span><span class="s1">-</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="n">telescopeName</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;-mirror</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mirrorNumber</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;.dat&#39;</span>
+    <span class="k">return</span> <span class="n">name</span></div>
+
+
+<div class="viewcode-block" id="rayTracingFileName"><a class="viewcode-back" href="../../util.html#util.names.rayTracingFileName">[docs]</a><span class="k">def</span> <span class="nf">rayTracingFileName</span><span class="p">(</span>
+    <span class="n">telescopeName</span><span class="p">,</span>
+    <span class="n">sourceDistance</span><span class="p">,</span>
+    <span class="n">zenithAngle</span><span class="p">,</span>
+    <span class="n">offAxisAngle</span><span class="p">,</span>
+    <span class="n">mirrorNumber</span><span class="p">,</span>
+    <span class="n">label</span><span class="p">,</span>
+    <span class="n">base</span>
+<span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    File name for files required at the RayTracing class.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    telescopeName: str</span>
+<span class="sd">        North-LST-1, South-MST-FlashCam, ...</span>
+<span class="sd">    sourceDistance: float</span>
+<span class="sd">        Source distance (km).</span>
+<span class="sd">    zenithAngle: float</span>
+<span class="sd">        Zenith angle (deg).</span>
+<span class="sd">    offAxisAngle: float</span>
+<span class="sd">        Off-axis angle (deg).</span>
+<span class="sd">    mirrorNumber: int</span>
+<span class="sd">        Mirror number. None if not single mirror case.</span>
+<span class="sd">    label: str</span>
+<span class="sd">        Instance label.</span>
+<span class="sd">    base: str</span>
+<span class="sd">        Photons, stars or log.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        File name.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">-</span><span class="si">{}</span><span class="s1">-d</span><span class="si">{:.1f}</span><span class="s1">-za</span><span class="si">{:.1f}</span><span class="s1">-off</span><span class="si">{:.3f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">base</span><span class="p">,</span>
+        <span class="n">telescopeName</span><span class="p">,</span>
+        <span class="n">sourceDistance</span><span class="p">,</span>
+        <span class="n">zenithAngle</span><span class="p">,</span>
+        <span class="n">offAxisAngle</span>
+    <span class="p">)</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;_mirror</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mirrorNumber</span><span class="p">)</span> <span class="k">if</span> <span class="n">mirrorNumber</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;.log&#39;</span> <span class="k">if</span> <span class="n">base</span> <span class="o">==</span> <span class="s1">&#39;log&#39;</span> <span class="k">else</span> <span class="s1">&#39;.lis&#39;</span>
+    <span class="k">return</span> <span class="n">name</span></div>
+
+
+<span class="k">def</span> <span class="nf">rayTracingResultsFileName</span><span class="p">(</span><span class="n">telescopeName</span><span class="p">,</span> <span class="n">sourceDistance</span><span class="p">,</span> <span class="n">zenithAngle</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Ray tracing results file name.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    telescopeName: str</span>
+<span class="sd">        North-LST-1, South-MST-FlashCam, ...</span>
+<span class="sd">    sourceDistance: float</span>
+<span class="sd">        Source distance (km).</span>
+<span class="sd">    zenithAngle: float</span>
+<span class="sd">        Zenith angle (deg).</span>
+<span class="sd">    label: str</span>
+<span class="sd">        Instance label.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        File name.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;ray-tracing-</span><span class="si">{}</span><span class="s1">-d</span><span class="si">{:.1f}</span><span class="s1">-za</span><span class="si">{:.1f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">telescopeName</span><span class="p">,</span> <span class="n">sourceDistance</span><span class="p">,</span> <span class="n">zenithAngle</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;.cvs&#39;</span>
+    <span class="k">return</span> <span class="n">name</span>
+
+
+<span class="k">def</span> <span class="nf">rayTracingPlotFileName</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">telescopeName</span><span class="p">,</span> <span class="n">sourceDistance</span><span class="p">,</span> <span class="n">zenithAngle</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Ray tracing plot file name.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    key: str</span>
+<span class="sd">        Quantity to be plotted (d80_cm, d80_deg, eff_area or eff_flen)</span>
+<span class="sd">    telescopeName: str</span>
+<span class="sd">        South-LST-1, North-MST-FlashCam, ...</span>
+<span class="sd">    sourceDistance: float</span>
+<span class="sd">        Source distance (km).</span>
+<span class="sd">    zenithAngle: float</span>
+<span class="sd">        Zenith angle (deg).</span>
+<span class="sd">    label: str</span>
+<span class="sd">        Instance label.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        File name.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;ray-tracing-</span><span class="si">{}</span><span class="s1">-</span><span class="si">{}</span><span class="s1">-d</span><span class="si">{:.1f}</span><span class="s1">-za</span><span class="si">{:.1f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">telescopeName</span><span class="p">,</span>
+        <span class="n">key</span><span class="p">,</span>
+        <span class="n">sourceDistance</span><span class="p">,</span>
+        <span class="n">zenithAngle</span>
+    <span class="p">)</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;.pdf&#39;</span>
+    <span class="k">return</span> <span class="n">name</span>
+
+
+<span class="k">def</span> <span class="nf">cameraEfficiencyResultsFileName</span><span class="p">(</span><span class="n">telescopeName</span><span class="p">,</span> <span class="n">zenithAngle</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Camera efficiency results file name.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    telescopeName: str</span>
+<span class="sd">        South-LST-1, North-MST-FlashCam, ...</span>
+<span class="sd">    zenithAngle: float</span>
+<span class="sd">        Zenith angle (deg).</span>
+<span class="sd">    label: str</span>
+<span class="sd">        Instance label.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        File name.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;camera-efficiency-</span><span class="si">{}</span><span class="s1">-za</span><span class="si">{:.1f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">telescopeName</span><span class="p">,</span> <span class="n">zenithAngle</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;.csv&#39;</span>
+    <span class="k">return</span> <span class="n">name</span>
+
+
+<span class="k">def</span> <span class="nf">cameraEfficiencySimtelFileName</span><span class="p">(</span><span class="n">telescopeName</span><span class="p">,</span> <span class="n">zenithAngle</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Camera efficiency simtel output file name.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    telescopeName: str</span>
+<span class="sd">        North-LST-1, South-MST-FlashCam, ...</span>
+<span class="sd">    zenithAngle: float</span>
+<span class="sd">        Zenith angle (deg).</span>
+<span class="sd">    label: str</span>
+<span class="sd">        Instance label.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        File name.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;camera-efficiency-</span><span class="si">{}</span><span class="s1">-za</span><span class="si">{:.1f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">telescopeName</span><span class="p">,</span> <span class="n">zenithAngle</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;.dat&#39;</span>
+    <span class="k">return</span> <span class="n">name</span>
+
+
+<span class="k">def</span> <span class="nf">cameraEfficiencyLogFileName</span><span class="p">(</span><span class="n">telescopeName</span><span class="p">,</span> <span class="n">zenithAngle</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Camera efficiency log file name.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    telescopeName: str</span>
+<span class="sd">        South-LST-1, North-MST-FlashCam, ...</span>
+<span class="sd">    zenithAngle: float</span>
+<span class="sd">        Zenith angle (deg).</span>
+<span class="sd">    label: str</span>
+<span class="sd">        Instance label.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        File name.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;camera-efficiency-</span><span class="si">{}</span><span class="s1">-za</span><span class="si">{:.1f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">telescopeName</span><span class="p">,</span> <span class="n">zenithAngle</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;.log&#39;</span>
+    <span class="k">return</span> <span class="n">name</span>
+
+
+<div class="viewcode-block" id="corsikaConfigFileName"><a class="viewcode-back" href="../../util.html#util.names.corsikaConfigFileName">[docs]</a><span class="k">def</span> <span class="nf">corsikaConfigFileName</span><span class="p">(</span><span class="n">arrayName</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">zenith</span><span class="p">,</span> <span class="n">viewCone</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Corsika config file name.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    arrayName: str</span>
+<span class="sd">        Array name.</span>
+<span class="sd">    site: str</span>
+<span class="sd">        Paranal or LaPalma.</span>
+<span class="sd">    zenith: float</span>
+<span class="sd">        Zenith angle (deg).</span>
+<span class="sd">    viewCone: list of float</span>
+<span class="sd">        View cone limits (len = 2).</span>
+<span class="sd">    label: str</span>
+<span class="sd">        Instance label.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        File name.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">isDiffuse</span> <span class="o">=</span> <span class="p">(</span><span class="n">viewCone</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">viewCone</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;corsika-config-</span><span class="si">{}</span><span class="s1">-</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">arrayName</span><span class="p">,</span> <span class="n">site</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;-za</span><span class="si">{:d}</span><span class="s1">-</span><span class="si">{:d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">zenith</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">zenith</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;-cone</span><span class="si">{:d}</span><span class="s1">-</span><span class="si">{:d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">viewCone</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">viewCone</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="k">if</span> <span class="n">isDiffuse</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;.txt&#39;</span>
+    <span class="k">return</span> <span class="n">name</span></div>
+
+
+<div class="viewcode-block" id="corsikaOutputFileName"><a class="viewcode-back" href="../../util.html#util.names.corsikaOutputFileName">[docs]</a><span class="k">def</span> <span class="nf">corsikaOutputFileName</span><span class="p">(</span><span class="n">arrayName</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">zenith</span><span class="p">,</span> <span class="n">viewCone</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Corsika output file name.</span>
+
+<span class="sd">    Warning</span>
+<span class="sd">    -------</span>
+<span class="sd">        zst extension is hardcoded here.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    arrayName: str</span>
+<span class="sd">        Array name.</span>
+<span class="sd">    site: str</span>
+<span class="sd">        Paranal or LaPalma.</span>
+<span class="sd">    zenith: float</span>
+<span class="sd">        Zenith angle (deg).</span>
+<span class="sd">    viewCone: list of float</span>
+<span class="sd">        View cone limits (len = 2).</span>
+<span class="sd">    run: int</span>
+<span class="sd">        Run number.</span>
+<span class="sd">    label: str</span>
+<span class="sd">        Instance label.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        File name.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">isDiffuse</span> <span class="o">=</span> <span class="p">(</span><span class="n">viewCone</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">viewCone</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;corsika-run</span><span class="si">{}</span><span class="s1">-</span><span class="si">{}</span><span class="s1">-</span><span class="si">{}</span><span class="s1">-za</span><span class="si">{:d}</span><span class="s1">-</span><span class="si">{:d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">run</span><span class="p">,</span>
+        <span class="n">arrayName</span><span class="p">,</span>
+        <span class="n">site</span><span class="p">,</span>
+        <span class="nb">int</span><span class="p">(</span><span class="n">zenith</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+        <span class="nb">int</span><span class="p">(</span><span class="n">zenith</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="p">)</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;-cone</span><span class="si">{:d}</span><span class="s1">-</span><span class="si">{:d}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">viewCone</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">viewCone</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="k">if</span> <span class="n">isDiffuse</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s1">&#39;.corsika.zst&#39;</span>
+    <span class="k">return</span> <span class="n">name</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, gammasim-tools developers
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

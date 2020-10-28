@@ -1,0 +1,625 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>psf_analysis &mdash; gammasim-tools 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> gammasim-tools
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../framework.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../applications.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library.html">simtools Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../databases.html">Databases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conventions.html">Conventions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">gammasim-tools</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>psf_analysis</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for psf_analysis</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Module to analise psf images (e.g. results from ray tracing simulations).</span>
+<span class="sd">Main functionalities are: computing centroids, psf containers etc.</span>
+
+<span class="sd">Author: Raul R Prado</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">sqrt</span><span class="p">,</span> <span class="n">fabs</span><span class="p">,</span> <span class="n">pi</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">simtools.util.general</span> <span class="kn">import</span> <span class="n">collectKwargs</span><span class="p">,</span> <span class="n">setDefaultKwargs</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;PSFImage&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="PSFImage"><a class="viewcode-back" href="../ray_tracing.html#psf_analysis.PSFImage">[docs]</a><span class="k">class</span> <span class="nc">PSFImage</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Image composed of list of photon positions (2D).</span>
+
+<span class="sd">    Load photon list from sim_telarray file and compute centroids, psf containers, effective area,</span>
+<span class="sd">    as well as plot the image as a 2D histogram.</span>
+<span class="sd">    Internal units: photon positions in cm internally.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    focalLenght: float</span>
+<span class="sd">        Focal length of the system in cm, needed to convert quantities from cm to deg. If None,</span>
+<span class="sd">        getPSF will only work in cm (not in deg).</span>
+
+<span class="sd">    Atributtes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    effectiveArea: float</span>
+<span class="sd">        Mirror effective area in cm.</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    readSimtelFile(file)</span>
+<span class="sd">        Read a photon list produced by sim_telarray.</span>
+<span class="sd">    getPSF(fraction=0.8, unit=&#39;cm&#39;)</span>
+<span class="sd">        Compute and return a PSF container.</span>
+<span class="sd">    getEffecticeArea()</span>
+<span class="sd">        Return effective area under the condition that total area was set given.</span>
+<span class="sd">    plotImage(**kwargs)</span>
+<span class="sd">        Plot image as a 2D histogram</span>
+<span class="sd">    plotIntegral(**kwargs)</span>
+<span class="sd">        Plot cumulative intensity as a function containing fraction.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+<div class="viewcode-block" id="PSFImage.__init__"><a class="viewcode-back" href="../ray_tracing.html#psf_analysis.PSFImage.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">focalLength</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">totalScatteredArea</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="vm">__name__</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        focalLength: float, optional</span>
+<span class="sd">            Focal length of the system in cm. If not given, PSF can only be computed in cm.</span>
+<span class="sd">        totalScatteredArea: float, optional</span>
+<span class="sd">            Scatter area of all photons in cm^2. If not given, effective area cannot be computed.</span>
+<span class="sd">        logger: str</span>
+<span class="sd">            Logger name to use in this instance</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logger</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">photonPosX</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">photonPosY</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">centroidX</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">centroidY</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_totalArea</span> <span class="o">=</span> <span class="n">totalScatteredArea</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_storedPSF</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">focalLength</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cmToDeg</span> <span class="o">=</span> <span class="mf">180.</span> <span class="o">/</span> <span class="n">pi</span> <span class="o">/</span> <span class="n">focalLength</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_hasFocalLength</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_hasFocalLength</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="PSFImage.readSimtelFile"><a class="viewcode-back" href="../ray_tracing.html#psf_analysis.PSFImage.readSimtelFile">[docs]</a>    <span class="k">def</span> <span class="nf">readSimtelFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Read photon list file generated by sim_telarray and store the photon positions (2D).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file: str</span>
+<span class="sd">            Name of sim_telarray file with photon list.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        RuntimeError</span>
+<span class="sd">            If photon positions X and Y are not compatible or are empty.</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Reading SimtelFile </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_totalPhotons</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_processSimtelLine</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_isPhotonPositionsOK</span><span class="p">():</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Problems reading Simtel file - invalid data&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">centroidX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photonPosX</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">centroidY</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photonPosY</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_numberOfDetectedPhotons</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photonPosX</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_effectiveArea</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_numberOfDetectedPhotons</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_totalArea</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_totalPhotons</span></div>
+
+    <span class="k">def</span> <span class="nf">_isPhotonPositionsOK</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Verify if the photon positions are ok.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if photon positions are ok, False if they are not.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">cond1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photonPosX</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span>
+        <span class="n">cond2</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photonPosY</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span>
+        <span class="n">cond3</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photonPosX</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photonPosY</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cond1</span> <span class="ow">and</span> <span class="n">cond2</span> <span class="ow">and</span> <span class="n">cond3</span>
+
+    <span class="k">def</span> <span class="nf">_processSimtelLine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Supporting function to readSimtelFile.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        line: str</span>
+<span class="sd">            A line from the photon list file generated by sim_telarray.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">words</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s1">&#39;falling on an area of&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_totalPhotons</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span><span class="n">words</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+            <span class="n">totalAreaInFile</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">words</span><span class="p">[</span><span class="mi">14</span><span class="p">])</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_totalArea</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_totalArea</span> <span class="o">=</span> <span class="n">totalAreaInFile</span>
+            <span class="k">elif</span> <span class="n">totalAreaInFile</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_totalArea</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s1">&#39;Conflicting value of the total area found&#39;</span>
+                    <span class="s1">&#39; </span><span class="si">{}</span><span class="s1"> != </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_totalArea</span><span class="p">,</span> <span class="n">totalAreaInFile</span><span class="p">)</span> <span class="o">+</span>
+                    <span class="s1">&#39; - Keeping the original value&#39;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Do nothing - Keep the original value of _totalArea</span>
+                <span class="k">pass</span>
+        <span class="k">elif</span> <span class="s1">&#39;#&#39;</span> <span class="ow">in</span> <span class="n">line</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Skipping comments</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Storing photon position from cols 2 and 3</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">photonPosX</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">words</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">photonPosY</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">words</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+
+<div class="viewcode-block" id="PSFImage.getEffectiveArea"><a class="viewcode-back" href="../ray_tracing.html#psf_analysis.PSFImage.getEffectiveArea">[docs]</a>    <span class="k">def</span> <span class="nf">getEffectiveArea</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return effective area pre calculated</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Pre-calculated effective area. None if it could not be calculated (e.g because the total</span>
+<span class="sd">            scattering area was not set).</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="s1">&#39;_effectiveArea&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_effectiveArea</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_effectiveArea</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Effective Area could not be calculated&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="PSFImage.setEffectiveArea"><a class="viewcode-back" href="../ray_tracing.html#psf_analysis.PSFImage.setEffectiveArea">[docs]</a>    <span class="k">def</span> <span class="nf">setEffectiveArea</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Set effective area</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value: float</span>
+<span class="sd">            Effective area</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_effectiveArea</span> <span class="o">=</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="PSFImage.getPSF"><a class="viewcode-back" href="../ray_tracing.html#psf_analysis.PSFImage.getPSF">[docs]</a>    <span class="k">def</span> <span class="nf">getPSF</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;cm&#39;</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return PSF</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fraction: float</span>
+<span class="sd">            Fraction of photons within the containing radius.</span>
+<span class="sd">        unit: str</span>
+<span class="sd">            &#39;cm&#39; or &#39;deg&#39;. &#39;deg&#39; will not work if focal length was not set.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float:</span>
+<span class="sd">            Containing diameter for a certain intensity fraction (PSF).</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">unit</span> <span class="o">==</span> <span class="s1">&#39;deg&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hasFocalLength</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;PSF cannot be computed in deg because focal length is not set&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">fraction</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storedPSF</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_computePSF</span><span class="p">(</span><span class="n">fraction</span><span class="p">)</span>
+        <span class="n">unitFactor</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">unit</span> <span class="o">==</span> <span class="s1">&#39;cm&#39;</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmToDeg</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storedPSF</span><span class="p">[</span><span class="n">fraction</span><span class="p">]</span> <span class="o">*</span> <span class="n">unitFactor</span></div>
+
+<div class="viewcode-block" id="PSFImage.setPSF"><a class="viewcode-back" href="../ray_tracing.html#psf_analysis.PSFImage.setPSF">[docs]</a>    <span class="k">def</span> <span class="nf">setPSF</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;cm&#39;</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Set PSF calculated from other methods</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value: float</span>
+<span class="sd">            PSF value to be set</span>
+<span class="sd">        fraction: float</span>
+<span class="sd">            Fraction of photons within the containing radius.</span>
+<span class="sd">        unit: str</span>
+<span class="sd">            &#39;cm&#39; or &#39;deg&#39;. &#39;deg&#39; will not work if focal length was not set.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">unit</span> <span class="o">==</span> <span class="s1">&#39;deg&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hasFocalLength</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;PSF cannot be set in deg because focal length is not set&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">unitFactor</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">unit</span> <span class="o">==</span> <span class="s1">&#39;cm&#39;</span> <span class="k">else</span> <span class="mf">1.</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmToDeg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_storedPSF</span><span class="p">[</span><span class="n">fraction</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span> <span class="o">*</span> <span class="n">unitFactor</span></div>
+
+    <span class="k">def</span> <span class="nf">_computePSF</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fraction</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Compute and store PSF.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fraction: float</span>
+<span class="sd">            Fraction of photons within the containing radius</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_storedPSF</span><span class="p">[</span><span class="n">fraction</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_findPSF</span><span class="p">(</span><span class="n">fraction</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_findPSF</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fraction</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Try to find PSF by a smart algorithm first. If it fails, _findRadiusByScanning is called and</span>
+<span class="sd">        do it by brute force.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fraction: float</span>
+<span class="sd">            Fraction of photons within the containing radius.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float:</span>
+<span class="sd">            Diameter of the circular container with a certain fraction of the photons.</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Finding PSF for fraction = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fraction</span><span class="p">))</span>
+
+        <span class="n">xPosSq</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">**</span><span class="mi">2</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">photonPosX</span><span class="p">]</span>
+        <span class="n">yPosSq</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">**</span><span class="mi">2</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">photonPosY</span><span class="p">]</span>
+        <span class="n">xPosSig</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">xPosSq</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">centroidX</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">yPosSig</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">yPosSq</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">centroidY</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">radiusSig</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">xPosSig</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">yPosSig</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">targetNumber</span> <span class="o">=</span> <span class="n">fraction</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_numberOfDetectedPhotons</span>
+        <span class="n">currentRadius</span> <span class="o">=</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">radiusSig</span>
+        <span class="n">startNumber</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sumPhotonsInRadius</span><span class="p">(</span><span class="n">currentRadius</span><span class="p">)</span>
+        <span class="n">SCALE</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">currentRadius</span> <span class="o">*</span> <span class="n">currentRadius</span> <span class="o">/</span> <span class="n">startNumber</span><span class="p">)</span>
+        <span class="n">deltaNumber</span> <span class="o">=</span> <span class="n">startNumber</span> <span class="o">-</span> <span class="n">targetNumber</span>
+        <span class="n">nIter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">MAX_ITER</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="n">TOLERANCE</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_numberOfDetectedPhotons</span> <span class="o">/</span> <span class="mf">1000.</span>
+        <span class="n">foundRadius</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">foundRadius</span> <span class="ow">and</span> <span class="n">nIter</span> <span class="o">&lt;</span> <span class="n">MAX_ITER</span><span class="p">:</span>
+            <span class="n">nIter</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">dr</span> <span class="o">=</span> <span class="o">-</span><span class="n">deltaNumber</span> <span class="o">*</span> <span class="n">SCALE</span> <span class="o">/</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">targetNumber</span><span class="p">)</span>
+            <span class="k">while</span> <span class="n">currentRadius</span> <span class="o">+</span> <span class="n">dr</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">dr</span> <span class="o">*=</span> <span class="mf">0.5</span>
+            <span class="n">currentRadius</span> <span class="o">+=</span> <span class="n">dr</span>
+            <span class="n">currentNumber</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sumPhotonsInRadius</span><span class="p">(</span><span class="n">currentRadius</span><span class="p">)</span>
+            <span class="n">deltaNumber</span> <span class="o">=</span> <span class="n">currentNumber</span> <span class="o">-</span> <span class="n">targetNumber</span>
+            <span class="n">foundRadius</span> <span class="o">=</span> <span class="n">fabs</span><span class="p">(</span><span class="n">deltaNumber</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">TOLERANCE</span>
+
+        <span class="k">if</span> <span class="n">foundRadius</span><span class="p">:</span>
+            <span class="c1"># Diameter = 2 * radius</span>
+            <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">currentRadius</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Could not find PSF efficiently - trying by scanning&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_findRadiusByScanning</span><span class="p">(</span><span class="n">targetNumber</span><span class="p">,</span> <span class="n">radiusSig</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_findRadiusByScanning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targetNumber</span><span class="p">,</span> <span class="n">radiusSig</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Find radius by scanning, aka brute force.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        targetNumber: float</span>
+<span class="sd">            Number of photons inside the diameter to be found.</span>
+<span class="sd">        radiusSig: float</span>
+<span class="sd">            Sigma of the radius to be used as scale.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float:</span>
+<span class="sd">            Radius of the circle with targetNumber photons inside.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Finding PSF by scanning&#39;</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">scan</span><span class="p">(</span><span class="n">dr</span><span class="p">,</span> <span class="n">radMin</span><span class="p">,</span> <span class="n">radMax</span><span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">            Scan the image from radMin to radMax uin steps of dr ntil it finds targetNumber photons</span>
+<span class="sd">            inside.</span>
+
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+<span class="sd">            (float, float, float):</span>
+<span class="sd">                Average radius, min radius, max radius of the interval where targetNumber photons</span>
+<span class="sd">                are inside.</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="n">r0</span><span class="p">,</span> <span class="n">r1</span> <span class="o">=</span> <span class="n">radMin</span><span class="p">,</span> <span class="n">radMin</span> <span class="o">+</span> <span class="n">dr</span>
+            <span class="n">s0</span><span class="p">,</span> <span class="n">s1</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+            <span class="n">foundRadius</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">while</span> <span class="ow">not</span> <span class="n">foundRadius</span><span class="p">:</span>
+                <span class="n">s0</span><span class="p">,</span> <span class="n">s1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sumPhotonsInRadius</span><span class="p">(</span><span class="n">r0</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sumPhotonsInRadius</span><span class="p">(</span><span class="n">r1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">s0</span> <span class="o">&lt;</span> <span class="n">targetNumber</span> <span class="ow">and</span> <span class="n">s1</span> <span class="o">&gt;</span> <span class="n">targetNumber</span><span class="p">:</span>
+                    <span class="n">foundRadius</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+                <span class="k">if</span> <span class="n">r1</span> <span class="o">&gt;</span> <span class="n">radMax</span><span class="p">:</span>
+                    <span class="k">break</span>
+                <span class="n">r0</span> <span class="o">+=</span> <span class="n">dr</span>
+                <span class="n">r1</span> <span class="o">+=</span> <span class="n">dr</span>
+            <span class="k">if</span> <span class="n">foundRadius</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="n">r0</span> <span class="o">+</span> <span class="n">r1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">r0</span><span class="p">,</span> <span class="n">r1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Could not find PSF by scanning&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span>
+
+        <span class="c1"># Run scan few times with smaller dr to optimize search.</span>
+        <span class="c1"># Step 0</span>
+        <span class="n">radius</span><span class="p">,</span> <span class="n">radMin</span><span class="p">,</span> <span class="n">radMax</span> <span class="o">=</span> <span class="n">scan</span><span class="p">(</span><span class="mf">0.1</span><span class="o">*</span><span class="n">radiusSig</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="o">*</span><span class="n">radiusSig</span><span class="p">)</span>
+        <span class="c1"># Step 1</span>
+        <span class="n">radius</span><span class="p">,</span> <span class="n">radMin</span><span class="p">,</span> <span class="n">radMax</span> <span class="o">=</span> <span class="n">scan</span><span class="p">(</span><span class="mf">0.005</span><span class="o">*</span><span class="n">radiusSig</span><span class="p">,</span> <span class="n">radMin</span><span class="p">,</span> <span class="n">radMax</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">radius</span>
+
+    <span class="k">def</span> <span class="nf">_sumPhotonsInRadius</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Return the number of photons inside a certain radius. &#39;&#39;&#39;</span>
+        <span class="n">nPhotons</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photonPosX</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">photonPosY</span><span class="p">):</span>
+            <span class="n">rr2</span> <span class="o">=</span> <span class="p">(</span><span class="n">xx</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">centroidX</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">yy</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">centroidY</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+            <span class="n">nPhotons</span> <span class="o">+=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">rr2</span> <span class="o">&lt;</span> <span class="n">radius</span><span class="o">**</span><span class="mi">2</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">nPhotons</span>
+
+<div class="viewcode-block" id="PSFImage.getImageData"><a class="viewcode-back" href="../ray_tracing.html#psf_analysis.PSFImage.getImageData">[docs]</a>    <span class="k">def</span> <span class="nf">getImageData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">centralized</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Provide image data (2D photon positions in cm) as lists.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        centralized: bool</span>
+<span class="sd">            Centroid of the image is set to (0, 0) if True.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        (x, y), the photons positions in cm.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">centralized</span><span class="p">:</span>
+            <span class="n">xPosData</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photonPosX</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">centroidX</span><span class="p">)</span>
+            <span class="n">yPosData</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photonPosY</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">centroidY</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">xPosData</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photonPosX</span><span class="p">)</span>
+            <span class="n">yPosData</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">photonPosY</span><span class="p">)</span>
+        <span class="n">dType</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;names&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="s1">&#39;Y&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;formats&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;f8&#39;</span><span class="p">,</span> <span class="s1">&#39;f8&#39;</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">records</span><span class="o">.</span><span class="n">fromarrays</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">xPosData</span><span class="p">,</span> <span class="n">yPosData</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dType</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PSFImage.plotImage"><a class="viewcode-back" href="../ray_tracing.html#psf_analysis.PSFImage.plotImage">[docs]</a>    <span class="k">def</span> <span class="nf">plotImage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">centralized</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Plot 2D image as histogram (in cm).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        centralized: bool</span>
+<span class="sd">            Centroid of the image is set to (0, 0) if True.</span>
+<span class="sd">        **kwargs:</span>
+<span class="sd">            image_* for the histogram plot and psf_* for the psf circle.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getImageData</span><span class="p">(</span><span class="n">centralized</span><span class="p">)</span>
+
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="n">setDefaultKwargs</span><span class="p">(</span>
+            <span class="n">kwargs</span><span class="p">,</span>
+            <span class="n">image_bins</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span>
+            <span class="n">image_cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">gist_heat_r</span><span class="p">,</span>
+            <span class="n">psf_color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span>
+            <span class="n">psf_fill</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">psf_lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">psf_ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span>
+        <span class="p">)</span>
+        <span class="n">kwargsForImage</span> <span class="o">=</span> <span class="n">collectKwargs</span><span class="p">(</span><span class="s1">&#39;image&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">kwargsForPSF</span> <span class="o">=</span> <span class="n">collectKwargs</span><span class="p">(</span><span class="s1">&#39;psf&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+        <span class="c1"># Image histogram</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">hist2d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;X&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargsForImage</span><span class="p">)</span>
+
+        <span class="c1"># PSF circle</span>
+        <span class="n">center</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="n">centralized</span> <span class="k">else</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">centroidX</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">centroidY</span><span class="p">)</span>
+        <span class="n">circle</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">Circle</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">getPSF</span><span class="p">(</span><span class="mf">0.8</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargsForPSF</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">add_artist</span><span class="p">(</span><span class="n">circle</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PSFImage.getCumulativeData"><a class="viewcode-back" href="../ray_tracing.html#psf_analysis.PSFImage.getCumulativeData">[docs]</a>    <span class="k">def</span> <span class="nf">getCumulativeData</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Provide cumulative data (intensity vs radius).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        (radius, intensity)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">radiusAll</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.6</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">getPSF</span><span class="p">(</span><span class="mf">0.8</span><span class="p">),</span> <span class="mi">30</span><span class="p">))</span>
+        <span class="n">intensity</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">rad</span> <span class="ow">in</span> <span class="n">radiusAll</span><span class="p">:</span>
+            <span class="n">intensity</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sumPhotonsInRadius</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_numberOfDetectedPhotons</span><span class="p">)</span>
+        <span class="n">dType</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;names&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;Radius [cm]&#39;</span><span class="p">,</span> <span class="s1">&#39;Relative intensity&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;formats&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;f8&#39;</span><span class="p">,</span> <span class="s1">&#39;f8&#39;</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">records</span><span class="o">.</span><span class="n">fromarrays</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">radiusAll</span><span class="p">,</span> <span class="n">intensity</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dType</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PSFImage.plotCumulative"><a class="viewcode-back" href="../ray_tracing.html#psf_analysis.PSFImage.plotCumulative">[docs]</a>    <span class="k">def</span> <span class="nf">plotCumulative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Plot cumulative data (intensity vs radius). &#39;&#39;&#39;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getCumulativeData</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Radius [cm]&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Relative intensity&#39;</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+
+<span class="c1"># end of PSFImage</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, gammasim-tools developers
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

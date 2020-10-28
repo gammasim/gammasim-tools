@@ -1,0 +1,751 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>model.telescope_model &mdash; gammasim-tools 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> gammasim-tools
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../framework.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../applications.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../library.html">simtools Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../databases.html">Databases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../conventions.html">Conventions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">gammasim-tools</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>model.telescope_model</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for model.telescope_model</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span> <span class="nn">simtools.config</span> <span class="k">as</span> <span class="nn">cfg</span>
+<span class="kn">import</span> <span class="nn">simtools.io_handler</span> <span class="k">as</span> <span class="nn">io</span>
+<span class="kn">from</span> <span class="nn">simtools</span> <span class="kn">import</span> <span class="n">db_handler</span>
+<span class="kn">from</span> <span class="nn">simtools.util</span> <span class="kn">import</span> <span class="n">names</span>
+<span class="kn">from</span> <span class="nn">simtools.util.model</span> <span class="kn">import</span> <span class="n">validateModelParameter</span>
+<span class="kn">from</span> <span class="nn">simtools.model.mirrors</span> <span class="kn">import</span> <span class="n">Mirrors</span>
+<span class="kn">from</span> <span class="nn">simtools.model.camera</span> <span class="kn">import</span> <span class="n">Camera</span>
+<span class="kn">from</span> <span class="nn">simtools.model.model_parameters</span> <span class="kn">import</span> <span class="n">MODEL_PARS</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;TelescopeModel&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="TelescopeModel"><a class="viewcode-back" href="../../mc_model.html#model.telescope_model.TelescopeModel">[docs]</a><span class="k">class</span> <span class="nc">TelescopeModel</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    TelescopeModel is an abstract representation of the MC model at the telescope level. It contains</span>
+<span class="sd">    the list of parameters and useful methods to handle it.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    telescopeName: str</span>
+<span class="sd">        Telescope name for the base set of parameters (ex. North-LST-1, ...).</span>
+<span class="sd">    version: str</span>
+<span class="sd">        Version of the model (ex. prod4).</span>
+<span class="sd">    label: str</span>
+<span class="sd">        Instance label.</span>
+<span class="sd">    mirrors: Mirrors</span>
+<span class="sd">        Instance of the Mirrors class created with the mirror list of the model.</span>
+<span class="sd">    camera: Camera</span>
+<span class="sd">        Instance of the Camera class created with the camera config file of the model.</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    fromConfigFile(configFileName, telescopeName, label=None, filesLocation=None)</span>
+<span class="sd">        Create a TelescopeModel from a sim_telarray cfg file.</span>
+<span class="sd">    hasParameter(parName):</span>
+<span class="sd">        Verify if parameter is in the model.</span>
+<span class="sd">    getParameter(parName):</span>
+<span class="sd">        Get an existing parameter of the model.</span>
+<span class="sd">    addParameters(**kwargs)</span>
+<span class="sd">        Add new parameters to the model.</span>
+<span class="sd">    changeParameters(**kwargs)</span>
+<span class="sd">        Change the value of existing parameters to the model.</span>
+<span class="sd">    removeParameters(**args)</span>
+<span class="sd">        Remove parameters from the model.</span>
+<span class="sd">    exportConfigFile()</span>
+<span class="sd">        Export config file for sim_telarray.</span>
+<span class="sd">    getConfigFile()</span>
+<span class="sd">        Get the path to the config file for sim_telarray.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+<div class="viewcode-block" id="TelescopeModel.__init__"><a class="viewcode-back" href="../../mc_model.html#model.telescope_model.TelescopeModel.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">telescopeName</span><span class="p">,</span>
+        <span class="n">version</span><span class="o">=</span><span class="s1">&#39;Current&#39;</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">modelFilesLocations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">filesLocation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">readFromDB</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">=</span><span class="vm">__name__</span>
+    <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        TelescopeModel.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        telescopeName: str</span>
+<span class="sd">            Telescope name for the base set of parameters (ex. North-LST-1, ...).</span>
+<span class="sd">        version: str, optional</span>
+<span class="sd">            Version of the model (ex. prod4) (default: &quot;Current&quot;).</span>
+<span class="sd">        label: str, optional</span>
+<span class="sd">            Instance label. Important for output file naming.</span>
+<span class="sd">        modelFilesLocation: str (or Path), optional</span>
+<span class="sd">            Location of the MC model files. If not given, it will be taken from the config.yml file.</span>
+<span class="sd">        filesLocation: str (or Path), optional</span>
+<span class="sd">            Parent location of the output files created by this class. If not given, it will be</span>
+<span class="sd">            taken from the config.yml file.</span>
+<span class="sd">        readFromDB: bool, optional</span>
+<span class="sd">            If True, parameters will be loaded from the DB at the init level. Default = True.</span>
+<span class="sd">        logger: str</span>
+<span class="sd">            Logger name to use in this instance</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logger</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Init TelescopeModel&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">names</span><span class="o">.</span><span class="n">validateModelVersionName</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">telescopeName</span> <span class="o">=</span> <span class="n">names</span><span class="o">.</span><span class="n">validateTelescopeName</span><span class="p">(</span><span class="n">telescopeName</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">label</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_modelFilesLocations</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">getConfigArg</span><span class="p">(</span><span class="s1">&#39;modelFilesLocations&#39;</span><span class="p">,</span> <span class="n">modelFilesLocations</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_filesLocation</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">getConfigArg</span><span class="p">(</span><span class="s1">&#39;outputLocation&#39;</span><span class="p">,</span> <span class="n">filesLocation</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">readFromDB</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_loadParametersFromDB</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setConfigFileDirectory</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_isConfigFileUpdated</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mirrors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;_mirrors&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_loadMirrors</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mirrors</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">camera</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;_camera&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_loadCamera</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_camera</span>
+
+<div class="viewcode-block" id="TelescopeModel.fromConfigFile"><a class="viewcode-back" href="../../mc_model.html#model.telescope_model.TelescopeModel.fromConfigFile">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">fromConfigFile</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">configFileName</span><span class="p">,</span>
+        <span class="n">telescopeName</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">modelFilesLocations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">filesLocation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">=</span><span class="vm">__name__</span>
+    <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Create a TelescopeModel from a sim_telarray config file.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        Todo: Dealing with ifdef/indef etc. By now it just keeps the last version of the parameters</span>
+<span class="sd">        in the file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        configFileName: str or Path</span>
+<span class="sd">            Path to the input config file.</span>
+<span class="sd">        telescopeName: str</span>
+<span class="sd">            Telescope name for the base set of parameters (ex. North-LST-1, ...).</span>
+<span class="sd">        label: str, optional</span>
+<span class="sd">            Instance label. Important for output file naming.</span>
+<span class="sd">        modelFilesLocation: str (or Path), optional</span>
+<span class="sd">            Location of the MC model files. If not given, it will be taken from the config.yml file.</span>
+<span class="sd">        filesLocation: str (or Path), optional</span>
+<span class="sd">            Parent location of the output files created by this class. If not given, it will be</span>
+<span class="sd">            taken from the config.yml file.</span>
+<span class="sd">        logger: str</span>
+<span class="sd">            Logger name to use in this instance</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Instance of the TelescopeModel class.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">tel</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">telescopeName</span><span class="o">=</span><span class="n">telescopeName</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+            <span class="n">modelFilesLocations</span><span class="o">=</span><span class="n">modelFilesLocations</span><span class="p">,</span>
+            <span class="n">filesLocation</span><span class="o">=</span><span class="n">filesLocation</span><span class="p">,</span>
+            <span class="n">readFromDB</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span>
+        <span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">_processLine</span><span class="p">(</span><span class="n">words</span><span class="p">):</span>
+            <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">            Process a line of the input config file that contains a parameter.</span>
+
+<span class="sd">            Parameters</span>
+<span class="sd">            ----------</span>
+<span class="sd">            words: list of str</span>
+<span class="sd">                List of str from the split of a line from the file.</span>
+
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+<span class="sd">            (parName, parValue)</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="n">iComment</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>  <span class="c1"># Index of any possible comment</span>
+            <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;%&#39;</span> <span class="ow">in</span> <span class="n">w</span><span class="p">:</span>
+                    <span class="n">iComment</span> <span class="o">=</span> <span class="n">words</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+                    <span class="k">break</span>
+            <span class="n">words</span> <span class="o">=</span> <span class="n">words</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">iComment</span><span class="p">]</span>  <span class="c1"># Removing comment</span>
+            <span class="n">parName</span> <span class="o">=</span> <span class="n">words</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">parValue</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">words</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="n">w</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+                <span class="n">w</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">)</span>
+                <span class="n">parValue</span> <span class="o">+=</span> <span class="n">w</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span>
+            <span class="k">return</span> <span class="n">parName</span><span class="p">,</span> <span class="n">parValue</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">configFileName</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file</span><span class="p">:</span>
+                <span class="n">words</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">elif</span> <span class="s1">&#39;%&#39;</span> <span class="ow">in</span> <span class="n">words</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="s1">&#39;echo&#39;</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">elif</span> <span class="s1">&#39;#&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">par</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">_processLine</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
+                    <span class="n">par</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">validateModelParameter</span><span class="p">(</span><span class="n">par</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                    <span class="n">parameters</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="n">tel</span><span class="o">.</span><span class="n">addParameters</span><span class="p">(</span><span class="o">**</span><span class="n">parameters</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tel</span></div>
+
+    <span class="k">def</span> <span class="nf">_setConfigFileDirectory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Define the variable _configFileDirectory and create directories, if needed &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_configFileDirectory</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">getModelOutputDirectory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filesLocation</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configFileDirectory</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_configFileDirectory</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Creating directory </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_configFileDirectory</span><span class="p">))</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">_loadParametersFromDB</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Read parameters from DB and store them in _parameters. &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Reading telescope parameters from DB&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setConfigFileDirectory</span><span class="p">()</span>
+        <span class="n">db</span> <span class="o">=</span> <span class="n">db_handler</span><span class="o">.</span><span class="n">DatabaseHandler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">getModelParameters</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">telescopeName</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_configFileDirectory</span><span class="p">,</span>
+            <span class="n">onlyApplicable</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Reading site parameters from DB&#39;</span><span class="p">)</span>
+
+        <span class="n">site</span> <span class="o">=</span> <span class="n">names</span><span class="o">.</span><span class="n">getSiteFromTelescopeName</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">telescopeName</span><span class="p">)</span>
+        <span class="n">_sitePars</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">getSiteParameters</span><span class="p">(</span>
+            <span class="n">site</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_configFileDirectory</span><span class="p">,</span>
+            <span class="n">onlyApplicable</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Only the following are read by sim_telarray, the others produce an error.</span>
+        <span class="c1"># TODO - Should we find a better solution for this?</span>
+        <span class="k">for</span> <span class="n">_parNow</span> <span class="ow">in</span> <span class="n">_sitePars</span><span class="o">.</span><span class="n">copy</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">_parNow</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;atmospheric_transmission&#39;</span><span class="p">,</span> <span class="s1">&#39;altitude&#39;</span><span class="p">]:</span>
+                <span class="n">_sitePars</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">_parNow</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_sitePars</span><span class="p">)</span>
+
+        <span class="c1"># Removing all info but the value</span>
+        <span class="c1"># TODO - change to use the full dict instead.</span>
+        <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;useMongoDB&#39;</span><span class="p">):</span>
+            <span class="n">_pars</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">_pars</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;Value&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_pars</span><span class="p">)</span>
+
+        <span class="c1"># The following cannot be read by sim_telarray</span>
+        <span class="c1"># TODO - Should we find a better solution for this?</span>
+        <span class="n">parsToRemove</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;pixel_shape&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;pixel_diameter&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;lightguide_efficiency_angle_file&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;lightguide_efficiency_wavelength_file&#39;</span>
+        <span class="p">]</span>
+        <span class="k">for</span> <span class="n">_parNow</span> <span class="ow">in</span> <span class="n">parsToRemove</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_parNow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">_parNow</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="c1"># END _loadParametersFromDB</span>
+
+<div class="viewcode-block" id="TelescopeModel.hasParameter"><a class="viewcode-back" href="../../mc_model.html#model.telescope_model.TelescopeModel.hasParameter">[docs]</a>    <span class="k">def</span> <span class="nf">hasParameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parName</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Verify if the parameter is in the model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parName: str</span>
+<span class="sd">            Name of the parameter.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">parName</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="TelescopeModel.getParameter"><a class="viewcode-back" href="../../mc_model.html#model.telescope_model.TelescopeModel.getParameter">[docs]</a>    <span class="k">def</span> <span class="nf">getParameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parName</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get an EXISTING parameter of the model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parName: str</span>
+<span class="sd">            Name of the parameter.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Value of the parameter</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If parName does not match any parameter in _parameters.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">parName</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="n">parName</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Parameter </span><span class="si">{}</span><span class="s1"> was not found in the model&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">parName</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TelescopeModel.addParameters"><a class="viewcode-back" href="../../mc_model.html#model.telescope_model.TelescopeModel.addParameters">[docs]</a>    <span class="k">def</span> <span class="nf">addParameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Add a NEW parameters to the model.</span>
+<span class="sd">        This function does not modify the DB, it affects only the current instance.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        **kwargs:</span>
+<span class="sd">            Parameters should be passed as parameterName=value.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If an existing parameter is tried to be set added.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">par</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">par</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Parameter </span><span class="si">{}</span><span class="s1"> already in the model, use changeParameter instead&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">par</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Adding </span><span class="si">{}</span><span class="s1">=</span><span class="si">{}</span><span class="s1"> to the model&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">par</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_isConfigFileUpdated</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="TelescopeModel.changeParameters"><a class="viewcode-back" href="../../mc_model.html#model.telescope_model.TelescopeModel.changeParameters">[docs]</a>    <span class="k">def</span> <span class="nf">changeParameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Change the value of EXISTING parameters to the model.</span>
+<span class="sd">        This function does not modify the DB, it affects only the current instance.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Parameters should be passed as parameterName=value.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the parameter to be changed does not exist.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">par</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">par</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Parameter </span><span class="si">{}</span><span class="s1"> not in the model, use addParameters instead&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">par</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="n">par</span><span class="p">])</span> <span class="o">!=</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Value type differs from the current one&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_isConfigFileUpdated</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="TelescopeModel.removeParameters"><a class="viewcode-back" href="../../mc_model.html#model.telescope_model.TelescopeModel.removeParameters">[docs]</a>    <span class="k">def</span> <span class="nf">removeParameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Remove a parameter from the model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        args</span>
+<span class="sd">            Each parameter to be removed has to be passed as args.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the parameter to be removed is not on the model.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">par</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">par</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Removing parameter </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">par</span><span class="p">))</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="n">par</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Could not remove parameter </span><span class="si">{}</span><span class="s1"> because it does not exist&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">par</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_isConfigFileUpdated</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="TelescopeModel.exportConfigFile"><a class="viewcode-back" href="../../mc_model.html#model.telescope_model.TelescopeModel.exportConfigFile">[docs]</a>    <span class="k">def</span> <span class="nf">exportConfigFile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Export the config file used by sim_telarray. &#39;&#39;&#39;</span>
+
+        <span class="c1"># Setting file name and the location</span>
+        <span class="n">configFileName</span> <span class="o">=</span> <span class="n">names</span><span class="o">.</span><span class="n">simtelConfigFileName</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">telescopeName</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_configFilePath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configFileDirectory</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">configFileName</span><span class="p">)</span>
+
+        <span class="c1"># Writing parameters to the file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Writing config file - </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_configFilePath</span><span class="p">))</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_configFilePath</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">&#39;%</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">99</span> <span class="o">*</span> <span class="s1">&#39;=&#39;</span><span class="p">)</span>
+                <span class="o">+</span> <span class="s1">&#39;% Configuration file for:</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="o">+</span> <span class="s1">&#39;% TelescopeName: </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">telescopeName</span><span class="p">)</span>
+                <span class="o">+</span> <span class="s1">&#39;</span><span class="si">% La</span><span class="s1">bel: </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+                <span class="o">+</span> <span class="s1">&#39;%</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">99</span> <span class="o">*</span> <span class="s1">&#39;=&#39;</span><span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">par</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="n">par</span><span class="p">]</span>
+                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> = </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">par</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_isConfigFileUpdated</span> <span class="o">=</span> <span class="kc">True</span></div>
+    <span class="c1"># END exportConfigFile</span>
+
+<div class="viewcode-block" id="TelescopeModel.getConfigFile"><a class="viewcode-back" href="../../mc_model.html#model.telescope_model.TelescopeModel.getConfigFile">[docs]</a>    <span class="k">def</span> <span class="nf">getConfigFile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get the path of the config file for sim_telarray.</span>
+<span class="sd">        The config file is produced if the file is not updated.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Path of the exported config file for sim_telarray.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_isConfigFileUpdated</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exportConfigFile</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configFilePath</span></div>
+
+<div class="viewcode-block" id="TelescopeModel.getTelescopeTransmissionParameters"><a class="viewcode-back" href="../../mc_model.html#model.telescope_model.TelescopeModel.getTelescopeTransmissionParameters">[docs]</a>    <span class="k">def</span> <span class="nf">getTelescopeTransmissionParameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get tel. transmission pars as a list of floats.</span>
+<span class="sd">        Importante for RayTracing analysis.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of floats</span>
+<span class="sd">            List of 4 parameters that decsribe the tel. transmission vs off-axis.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">pars</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">getParameter</span><span class="p">(</span><span class="s1">&#39;telescope_transmission&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">():</span>
+            <span class="n">pars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">pars</span></div>
+
+<div class="viewcode-block" id="TelescopeModel.exportSingleMirrorListFile"><a class="viewcode-back" href="../../mc_model.html#model.telescope_model.TelescopeModel.exportSingleMirrorListFile">[docs]</a>    <span class="k">def</span> <span class="nf">exportSingleMirrorListFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mirrorNumber</span><span class="p">,</span> <span class="n">setFocalLengthToZero</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Export a mirror list file with a single mirror in it.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mirrorNumber: int</span>
+<span class="sd">            Number index of the mirror.</span>
+<span class="sd">        setFocalLengthToZero: bool</span>
+<span class="sd">            Set the focal length to zero if True.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">mirrorNumber</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">mirrors</span><span class="o">.</span><span class="n">numberOfMirrors</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;mirrorNumber &gt; numberOfMirrors&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">fileName</span> <span class="o">=</span> <span class="n">names</span><span class="o">.</span><span class="n">simtelSingleMirrorListFileName</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">telescopeName</span><span class="p">,</span>
+            <span class="n">mirrorNumber</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;_singleMirrorListFilePath&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_singleMirrorListFilePaths</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_singleMirrorListFilePaths</span><span class="p">[</span><span class="n">mirrorNumber</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configFileDirectory</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">fileName</span><span class="p">)</span>
+
+        <span class="n">__</span><span class="p">,</span> <span class="n">__</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">flen</span><span class="p">,</span> <span class="n">shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mirrors</span><span class="o">.</span><span class="n">getSingleMirrorParameters</span><span class="p">(</span><span class="n">mirrorNumber</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_singleMirrorListFilePaths</span><span class="p">[</span><span class="n">mirrorNumber</span><span class="p">])</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_singleMirrorListFilePaths</span><span class="p">[</span><span class="n">mirrorNumber</span><span class="p">],</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# Column 1: X pos. [cm] (North/Down)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# Column 2: Y pos. [cm] (West/Right from camera)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;# Column 3: flat-to-flat diameter [cm]</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="s1">&#39;# Column 4: focal length [cm], typically zero = adapting in sim_telarray.</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="s1">&#39;# Column 5: shape type: 0=circular, 1=hex. with flat side parallel to y, &#39;</span>
+                <span class="s1">&#39;2=square, 3=other hex. (default: 0)</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="s1">&#39;# Column 6: Z pos (height above dish backplane) [cm], typ. omitted (or zero)&#39;</span>
+                <span class="s1">&#39; to adapt to dish shape settings.</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;#</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;0. 0. </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1"> 0.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">diameter</span><span class="p">,</span>
+                <span class="n">flen</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">setFocalLengthToZero</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="n">shape</span>
+            <span class="p">))</span></div>
+    <span class="c1"># END of exportSingleMirrorListFile</span>
+
+<div class="viewcode-block" id="TelescopeModel.getSingleMirrorListFile"><a class="viewcode-back" href="../../mc_model.html#model.telescope_model.TelescopeModel.getSingleMirrorListFile">[docs]</a>    <span class="k">def</span> <span class="nf">getSingleMirrorListFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mirrorNumber</span><span class="p">,</span> <span class="n">setFocalLengthToZero</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Get the path to the single mirror list file.&#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exportSingleMirrorListFile</span><span class="p">(</span><span class="n">mirrorNumber</span><span class="p">,</span> <span class="n">setFocalLengthToZero</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_singleMirrorListFilePaths</span><span class="p">[</span><span class="n">mirrorNumber</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">_loadMirrors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">mirrorListFileName</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="s1">&#39;mirror_list&#39;</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">mirrorListFile</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">findFile</span><span class="p">(</span><span class="n">mirrorListFileName</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configFileDirectory</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">mirrorListFile</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">findFile</span><span class="p">(</span><span class="n">mirrorListFileName</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modelFilesLocations</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mirrors</span> <span class="o">=</span> <span class="n">Mirrors</span><span class="p">(</span><span class="n">mirrorListFile</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">_loadCamera</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">cameraConfigFile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="s1">&#39;camera_config_file&#39;</span><span class="p">]</span>
+        <span class="n">focalLength</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="s1">&#39;effective_focal_length&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">focalLength</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Using focal_length because effective_focal_length is 0.&#39;</span><span class="p">)</span>
+            <span class="n">focalLength</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="s1">&#39;focal_length&#39;</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cameraConfigFilePath</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">findFile</span><span class="p">(</span><span class="n">cameraConfigFile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configFileDirectory</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">cameraConfigFilePath</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">findFile</span><span class="p">(</span><span class="n">cameraConfigFile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modelFilesLocations</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_camera</span> <span class="o">=</span> <span class="n">Camera</span><span class="p">(</span>
+            <span class="n">telescopeName</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">telescopeName</span><span class="p">,</span>
+            <span class="n">cameraConfigFile</span><span class="o">=</span><span class="n">cameraConfigFilePath</span><span class="p">,</span>
+            <span class="n">focalLength</span><span class="o">=</span><span class="n">focalLength</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">name</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
+
+<div class="viewcode-block" id="TelescopeModel.isASTRI"><a class="viewcode-back" href="../../mc_model.html#model.telescope_model.TelescopeModel.isASTRI">[docs]</a>    <span class="k">def</span> <span class="nf">isASTRI</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Check if telescope is an ASTRI type.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bool:</span>
+<span class="sd">            True if telescope  is a ASTRI, False otherwise.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">telescopeName</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;SST-2M-ASTRI&#39;</span><span class="p">,</span> <span class="s1">&#39;SST&#39;</span><span class="p">,</span> <span class="s1">&#39;South-SST-D&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="TelescopeModel.isFile2D"><a class="viewcode-back" href="../../mc_model.html#model.telescope_model.TelescopeModel.isFile2D">[docs]</a>    <span class="k">def</span> <span class="nf">isFile2D</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">par</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Check if the file referenced by par is a 2D table.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        par: str</span>
+<span class="sd">            Name of the parameter.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool:</span>
+<span class="sd">            True if the file is a 2D map type, False otherwise.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">hasParameter</span><span class="p">(</span><span class="n">par</span><span class="p">):</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Parameter </span><span class="si">{}</span><span class="s1"> does not exist&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">par</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">fileName</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getParameter</span><span class="p">(</span><span class="n">par</span><span class="p">)</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">findFile</span><span class="p">(</span><span class="n">fileName</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">is2D</span> <span class="o">=</span> <span class="s1">&#39;@RPOL@&#39;</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">is2D</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, gammasim-tools developers
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

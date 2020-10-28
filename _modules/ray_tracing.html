@@ -1,0 +1,676 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ray_tracing &mdash; gammasim-tools 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> gammasim-tools
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../framework.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../applications.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library.html">simtools Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../databases.html">Databases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conventions.html">Conventions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">gammasim-tools</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>ray_tracing</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for ray_tracing</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">pi</span><span class="p">,</span> <span class="n">tan</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
+<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="kn">import</span> <span class="n">ascii</span>
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">QTable</span>
+
+<span class="kn">import</span> <span class="nn">simtools.config</span> <span class="k">as</span> <span class="nn">cfg</span>
+<span class="kn">import</span> <span class="nn">simtools.io_handler</span> <span class="k">as</span> <span class="nn">io</span>
+<span class="kn">from</span> <span class="nn">simtools.psf_analysis</span> <span class="kn">import</span> <span class="n">PSFImage</span>
+<span class="kn">from</span> <span class="nn">simtools.util</span> <span class="kn">import</span> <span class="n">names</span>
+<span class="kn">from</span> <span class="nn">simtools.util.model</span> <span class="kn">import</span> <span class="n">computeTelescopeTransmission</span>
+<span class="kn">from</span> <span class="nn">simtools.model.telescope_model</span> <span class="kn">import</span> <span class="n">TelescopeModel</span>
+<span class="kn">from</span> <span class="nn">simtools.simtel_runner</span> <span class="kn">import</span> <span class="n">SimtelRunner</span>
+<span class="kn">from</span> <span class="nn">simtools.util.general</span> <span class="kn">import</span> <span class="n">collectArguments</span><span class="p">,</span> <span class="n">collectKwargs</span><span class="p">,</span> <span class="n">setDefaultKwargs</span>
+<span class="kn">from</span> <span class="nn">simtools</span> <span class="kn">import</span> <span class="n">visualize</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;RayTracing&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="RayTracing"><a class="viewcode-back" href="../ray_tracing.html#ray_tracing.RayTracing">[docs]</a><span class="k">class</span> <span class="nc">RayTracing</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Class for handling ray tracing simulations and analysis.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    label: str</span>
+<span class="sd">        Instance label.</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    simulate(test=False, force=False)</span>
+<span class="sd">        Simulate RayTracing using SimtelRunner.</span>
+<span class="sd">    analyse(export=True, force=False, useRX=False, noTelTransmission=False)</span>
+<span class="sd">        Analyze RayTracing, meaning read simtel files, compute psfs and eff areas and store the</span>
+<span class="sd">        results in _results.</span>
+<span class="sd">    exportResults()</span>
+<span class="sd">        Export results to a csv file.</span>
+<span class="sd">    plot(key, **kwargs)</span>
+<span class="sd">        Plot key vs off-axis angle.</span>
+<span class="sd">    plotHistogram(key, **kwargs)</span>
+<span class="sd">        Plot histogram of key (d80_cm, d80_deg, eff_area, eff_flen).</span>
+<span class="sd">    getMean(key)</span>
+<span class="sd">        Get mean value of key(d80_cm, d80_deg, eff_area, eff_flen).</span>
+<span class="sd">    getStdDev(key)</span>
+<span class="sd">        Get std dev of key(d80_cm, d80_deg, eff_area, eff_flen).</span>
+<span class="sd">    images()</span>
+<span class="sd">        Get list of PSFImages.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">ALL_INPUTS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;zenithAngle&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">},</span>
+        <span class="s1">&#39;offAxisAngle&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">],</span>
+            <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+            <span class="s1">&#39;isList&#39;</span><span class="p">:</span> <span class="kc">True</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;sourceDistance&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;unit&#39;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="n">YLABEL</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;d80_cm&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;$D_</span><span class="si">{80}</span><span class="s1">$&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;d80_deg&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;$D_</span><span class="si">{80}</span><span class="s1">$&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;eff_area&#39;</span><span class="p">:</span> <span class="s1">&#39;Eff. mirror area&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;eff_flen&#39;</span><span class="p">:</span> <span class="s1">&#39;Eff. focal length&#39;</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="RayTracing.__init__"><a class="viewcode-back" href="../ray_tracing.html#ray_tracing.RayTracing.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">telescopeModel</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">simtelSourcePath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">filesLocation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">singleMirrorMode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">useRandomFocalLength</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">mirrorNumbers</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span>
+        <span class="n">logger</span><span class="o">=</span><span class="vm">__name__</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        RayTracing init.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        telescopeModel: TelescopeModel</span>
+<span class="sd">            Instance of the TelescopeModel class.</span>
+<span class="sd">        label: str</span>
+<span class="sd">            Instance label.</span>
+<span class="sd">        simtelSourcePath: str (or Path), optional</span>
+<span class="sd">            Location of sim_telarray installation. If not given, it will be taken from the</span>
+<span class="sd">            config.yml file.</span>
+<span class="sd">        filesLocation: str (or Path), optional</span>
+<span class="sd">            Parent location of the output files created by this class. If not given, it will be</span>
+<span class="sd">            taken from the config.yml file.</span>
+<span class="sd">        singleMirrorMode: bool</span>
+<span class="sd">        useRandomFocalLength: bool</span>
+<span class="sd">        logger: str</span>
+<span class="sd">            Logger name to use in this instance</span>
+<span class="sd">        **kwargs:</span>
+<span class="sd">            Physical parameters with units (if applicable). Options: zenithAngle, offAxisAngle,</span>
+<span class="sd">            sourceDistance, mirrorNumbers</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">logger</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_simtelSourcePath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">getConfigArg</span><span class="p">(</span><span class="s1">&#39;simtelPath&#39;</span><span class="p">,</span> <span class="n">simtelSourcePath</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_filesLocation</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">getConfigArg</span><span class="p">(</span><span class="s1">&#39;outputLocation&#39;</span><span class="p">,</span> <span class="n">filesLocation</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_telescopeModel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validateTelescopeModel</span><span class="p">(</span><span class="n">telescopeModel</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_singleMirrorMode</span> <span class="o">=</span> <span class="n">singleMirrorMode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_useRandomFocalLength</span> <span class="o">=</span> <span class="n">useRandomFocalLength</span>
+
+        <span class="c1"># Default parameters</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_singleMirrorMode</span><span class="p">:</span>
+            <span class="n">collectArguments</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span>
+                <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;zenithAngle&#39;</span><span class="p">,</span> <span class="s1">&#39;offAxisAngle&#39;</span><span class="p">],</span>
+                <span class="n">allInputs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ALL_INPUTS</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span>
+            <span class="p">)</span>
+            <span class="n">mirFlen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_telescopeModel</span><span class="o">.</span><span class="n">getParameter</span><span class="p">(</span><span class="s1">&#39;mirror_focal_length&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sourceDistance</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">mirFlen</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="p">)</span>  <span class="c1"># km</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mirrorNumbers</span> <span class="o">=</span> <span class="n">mirrorNumbers</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">collectArguments</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span>
+                <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;zenithAngle&#39;</span><span class="p">,</span> <span class="s1">&#39;offAxisAngle&#39;</span><span class="p">,</span> <span class="s1">&#39;sourceDistance&#39;</span><span class="p">],</span>
+                <span class="n">allInputs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ALL_INPUTS</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">label</span> <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_telescopeModel</span><span class="o">.</span><span class="n">label</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outputDirectory</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">getRayTracingOutputDirectory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filesLocation</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outputDirectory</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_singleMirrorMode</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mirrorNumbers</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_mirrorNumbers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_telescopeModel</span><span class="o">.</span><span class="n">mirrors</span><span class="o">.</span><span class="n">numberOfMirrors</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mirrorNumbers</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_mirrorNumbers</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_mirrorNumbers</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hasResults</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Results file</span>
+        <span class="n">fileNameResults</span> <span class="o">=</span> <span class="n">names</span><span class="o">.</span><span class="n">rayTracingResultsFileName</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_telescopeModel</span><span class="o">.</span><span class="n">telescopeName</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sourceDistance</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_zenithAngle</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">label</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outputDirectory</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;results&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fileResults</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outputDirectory</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;results&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">fileNameResults</span><span class="p">)</span></div>
+    <span class="c1"># END of init</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;RayTracing(label=</span><span class="si">{}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_validateTelescopeModel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tel</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Validate TelescopeModel &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tel</span><span class="p">,</span> <span class="n">TelescopeModel</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;TelescopeModel OK&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">tel</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Invalid TelescopeModel&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RayTracing.simulate"><a class="viewcode-back" href="../ray_tracing.html#ray_tracing.RayTracing.simulate">[docs]</a>    <span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Simulate RayTracing using SimtelRunner.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        test: bool</span>
+<span class="sd">            Test flag will make it faster by simulating much fewer photons.</span>
+<span class="sd">        force: bool</span>
+<span class="sd">            Force flag will remove existing files and simulate again.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">allMirrors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mirrorNumbers</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_singleMirrorMode</span> <span class="k">else</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">thisOffAxis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_offAxisAngle</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">thisMirror</span> <span class="ow">in</span> <span class="n">allMirrors</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Simulating RayTracing for offAxis=</span><span class="si">{}</span><span class="s1">, mirror=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">thisOffAxis</span><span class="p">,</span>
+                    <span class="n">thisMirror</span>
+                <span class="p">))</span>
+                <span class="n">simtel</span> <span class="o">=</span> <span class="n">SimtelRunner</span><span class="p">(</span>
+                    <span class="n">simtelSourcePath</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_simtelSourcePath</span><span class="p">,</span>
+                    <span class="n">filesLocation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_filesLocation</span><span class="p">,</span>
+                    <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;ray-tracing&#39;</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_singleMirrorMode</span> <span class="k">else</span> <span class="s1">&#39;raytracing-singlemirror&#39;</span><span class="p">,</span>
+                    <span class="n">telescopeModel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_telescopeModel</span><span class="p">,</span>
+                    <span class="n">zenithAngle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_zenithAngle</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                    <span class="n">sourceDistance</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_sourceDistance</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="p">,</span>
+                    <span class="n">offAxisAngle</span><span class="o">=</span><span class="n">thisOffAxis</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                    <span class="n">mirrorNumber</span><span class="o">=</span><span class="n">thisMirror</span><span class="p">,</span>
+                    <span class="n">useRandomFocalLength</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_useRandomFocalLength</span><span class="p">,</span>
+                    <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">name</span>
+                <span class="p">)</span>
+                <span class="n">simtel</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">test</span><span class="o">=</span><span class="n">test</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">)</span></div>
+    <span class="c1"># END of simulate</span>
+
+<div class="viewcode-block" id="RayTracing.analyze"><a class="viewcode-back" href="../ray_tracing.html#ray_tracing.RayTracing.analyze">[docs]</a>    <span class="k">def</span> <span class="nf">analyze</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">export</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">useRX</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">noTelTransmission</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Analyze RayTracing, meaning read simtel files, compute psfs and eff areas and store the</span>
+<span class="sd">        results in _results.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        export: bool</span>
+<span class="sd">            If True, results will be exported to a file automatically. Alternativelly, exportResults</span>
+<span class="sd">            function can be used.</span>
+<span class="sd">        force: bool</span>
+<span class="sd">            If True, existing results files will be removed and analysis will be done again.</span>
+<span class="sd">        useRX: bool</span>
+<span class="sd">            If True, calculations are done using the rx binary provided by sim_telarray. If False,</span>
+<span class="sd">            calculations are done internally, by the module psf_analysis.</span>
+<span class="sd">        noTelTransmission: bool</span>
+<span class="sd">            If True, the telescope transmission is not applied.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">doAnalyze</span> <span class="o">=</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fileResults</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">or</span> <span class="n">force</span><span class="p">)</span>
+
+        <span class="n">focalLength</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_telescopeModel</span><span class="o">.</span><span class="n">getParameter</span><span class="p">(</span><span class="s1">&#39;focal_length&#39;</span><span class="p">))</span>
+        <span class="n">telTransmissionPars</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_telescopeModel</span><span class="o">.</span><span class="n">getTelescopeTransmissionParameters</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">noTelTransmission</span> <span class="k">else</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="n">cmToDeg</span> <span class="o">=</span> <span class="mf">180.</span> <span class="o">/</span> <span class="n">pi</span> <span class="o">/</span> <span class="n">focalLength</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_psfImages</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">doAnalyze</span><span class="p">:</span>
+            <span class="n">_rows</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_readResults</span><span class="p">()</span>
+
+        <span class="n">allMirrors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mirrorNumbers</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_singleMirrorMode</span> <span class="k">else</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">thisOffAxis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_offAxisAngle</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">thisMirror</span> <span class="ow">in</span> <span class="n">allMirrors</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Analyzing RayTracing for offAxis=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">thisOffAxis</span><span class="p">))</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_singleMirrorMode</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;mirrorNumber=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">thisMirror</span><span class="p">))</span>
+
+                <span class="n">photonsFileName</span> <span class="o">=</span> <span class="n">names</span><span class="o">.</span><span class="n">rayTracingFileName</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_telescopeModel</span><span class="o">.</span><span class="n">telescopeName</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_sourceDistance</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_zenithAngle</span><span class="p">,</span>
+                    <span class="n">thisOffAxis</span><span class="p">,</span>
+                    <span class="n">thisMirror</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_singleMirrorMode</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span>
+                    <span class="s1">&#39;photons&#39;</span>
+                <span class="p">)</span>
+
+                <span class="n">photonsFile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outputDirectory</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">photonsFileName</span><span class="p">)</span>
+                <span class="n">telTransmission</span> <span class="o">=</span> <span class="n">computeTelescopeTransmission</span><span class="p">(</span><span class="n">telTransmissionPars</span><span class="p">,</span> <span class="n">thisOffAxis</span><span class="p">)</span>
+                <span class="n">image</span> <span class="o">=</span> <span class="n">PSFImage</span><span class="p">(</span><span class="n">focalLength</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">image</span><span class="o">.</span><span class="n">readSimtelFile</span><span class="p">(</span><span class="n">photonsFile</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_psfImages</span><span class="p">[</span><span class="n">thisOffAxis</span><span class="p">]</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">doAnalyze</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="k">if</span> <span class="n">useRX</span><span class="p">:</span>
+                    <span class="n">d80_cm</span><span class="p">,</span> <span class="n">centroidX</span><span class="p">,</span> <span class="n">centroidY</span><span class="p">,</span> <span class="n">effArea</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_processRX</span><span class="p">(</span><span class="n">photonsFile</span><span class="p">)</span>
+                    <span class="n">d80_deg</span> <span class="o">=</span> <span class="n">d80_cm</span> <span class="o">*</span> <span class="n">cmToDeg</span>
+                    <span class="n">image</span><span class="o">.</span><span class="n">setPSF</span><span class="p">(</span><span class="n">d80_cm</span><span class="p">,</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;cm&#39;</span><span class="p">)</span>
+                    <span class="n">image</span><span class="o">.</span><span class="n">centroidX</span> <span class="o">=</span> <span class="n">centroidX</span>
+                    <span class="n">image</span><span class="o">.</span><span class="n">centroidY</span> <span class="o">=</span> <span class="n">centroidY</span>
+                    <span class="n">image</span><span class="o">.</span><span class="n">setEffectiveArea</span><span class="p">(</span><span class="n">effArea</span> <span class="o">*</span> <span class="n">telTransmission</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">d80_cm</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">getPSF</span><span class="p">(</span><span class="mf">0.8</span><span class="p">,</span> <span class="s1">&#39;cm&#39;</span><span class="p">)</span>
+                    <span class="n">d80_deg</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">getPSF</span><span class="p">(</span><span class="mf">0.8</span><span class="p">,</span> <span class="s1">&#39;deg&#39;</span><span class="p">)</span>
+                    <span class="n">centroidX</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">centroidX</span>
+                    <span class="n">centroidY</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">centroidY</span>
+                    <span class="n">effArea</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">getEffectiveArea</span><span class="p">()</span> <span class="o">*</span> <span class="n">telTransmission</span>
+
+                <span class="n">effFlen</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="n">thisOffAxis</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">centroidX</span> <span class="o">/</span> <span class="n">tan</span><span class="p">(</span><span class="n">thisOffAxis</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">/</span> <span class="mf">180.</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">_currentResults</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">thisOffAxis</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                    <span class="n">d80_cm</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="p">,</span>
+                    <span class="n">d80_deg</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+                    <span class="n">effArea</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">,</span>
+                    <span class="n">effFlen</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_singleMirrorMode</span><span class="p">:</span>
+                    <span class="n">_currentResults</span> <span class="o">+=</span> <span class="p">(</span><span class="n">thisMirror</span><span class="p">,)</span>
+                <span class="n">_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_currentResults</span><span class="p">)</span>
+        <span class="c1"># END for offAxis, mirrorNumber</span>
+
+        <span class="k">if</span> <span class="n">doAnalyze</span><span class="p">:</span>
+            <span class="n">_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Off-axis angle&#39;</span><span class="p">]</span>
+            <span class="n">_columns</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">YLABEL</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_singleMirrorMode</span><span class="p">:</span>
+                <span class="n">_columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;mirror_number&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_results</span> <span class="o">=</span> <span class="n">QTable</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="n">_rows</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">_columns</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hasResults</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># Exporting</span>
+        <span class="k">if</span> <span class="n">export</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exportResults</span><span class="p">()</span></div>
+    <span class="c1"># END of analyze</span>
+
+    <span class="k">def</span> <span class="nf">_processRX</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Process sim_telarray photon list with rx binary and return the results (d80, centroids and</span>
+<span class="sd">        eff area).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file: str or Path</span>
+<span class="sd">            Photon list file.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        (d80_cm, xMean, yMean, effArea)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># Use -n to disable the cog optimization</span>
+        <span class="n">rxOutput</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span>
+            <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/sim_telarray/bin/rx -f 0.8 -v &lt; </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_simtelSourcePath</span><span class="p">,</span> <span class="n">file</span><span class="p">),</span>
+            <span class="n">shell</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="n">rxOutput</span> <span class="o">=</span> <span class="n">rxOutput</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">d80_cm</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">rxOutput</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">xMean</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rxOutput</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">yMean</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rxOutput</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">effArea</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rxOutput</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">d80_cm</span><span class="p">,</span> <span class="n">xMean</span><span class="p">,</span> <span class="n">yMean</span><span class="p">,</span> <span class="n">effArea</span>
+
+<div class="viewcode-block" id="RayTracing.exportResults"><a class="viewcode-back" href="../ray_tracing.html#ray_tracing.RayTracing.exportResults">[docs]</a>    <span class="k">def</span> <span class="nf">exportResults</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Export results to a csv file. &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hasResults</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Cannot export results because it does not exist&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Exporting results to </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fileResults</span><span class="p">))</span>
+            <span class="n">ascii</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fileResults</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;ecsv&#39;</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_readResults</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Read existing results file and store it in _results. &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_results</span> <span class="o">=</span> <span class="n">ascii</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fileResults</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;ecsv&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hasResults</span> <span class="o">=</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="RayTracing.plot"><a class="viewcode-back" href="../ray_tracing.html#ray_tracing.RayTracing.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Plot key vs off-axis angle and save the figure in pdf.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key: str</span>
+<span class="sd">            d80_cm, d80_deg, eff_area or eff_flen</span>
+<span class="sd">        save: bool</span>
+<span class="sd">            If True, figure will be saved.</span>
+<span class="sd">        **kwargs:</span>
+<span class="sd">            kwargs for plt.plot</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If key is not among the valid options.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">YLABEL</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Invalid key to plot&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Plotting </span><span class="si">{}</span><span class="s1"> vs off-axis angle&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+
+        <span class="n">plt</span> <span class="o">=</span> <span class="n">visualize</span><span class="o">.</span><span class="n">plotTable</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">[</span><span class="s1">&#39;Offset&#39;</span><span class="p">,</span> <span class="n">key</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">YLABEL</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>
+            <span class="n">noLegend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+            <span class="n">plotFileName</span> <span class="o">=</span> <span class="n">names</span><span class="o">.</span><span class="n">rayTracingPlotFileName</span><span class="p">(</span>
+                <span class="n">key</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_telescopeModel</span><span class="o">.</span><span class="n">telescopeName</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sourceDistance</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_zenithAngle</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">label</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_outputDirectory</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;figures&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">plotFile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outputDirectory</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;figures&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">plotFileName</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Ssaving fig in </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">plotFile</span><span class="p">))</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">plotFile</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RayTracing.plotHistogram"><a class="viewcode-back" href="../ray_tracing.html#ray_tracing.RayTracing.plotHistogram">[docs]</a>    <span class="k">def</span> <span class="nf">plotHistogram</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Plot histogram of key.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key: str</span>
+<span class="sd">            d80_cm, d80_deg, eff_area or eff_flen</span>
+<span class="sd">        **kwargs:</span>
+<span class="sd">            kwargs for plt.hist</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If key is not among the valid options.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">YLABEL</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Invalid key to plot&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">([</span><span class="n">r</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">[</span><span class="n">key</span><span class="p">]],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RayTracing.getMean"><a class="viewcode-back" href="../ray_tracing.html#ray_tracing.RayTracing.getMean">[docs]</a>    <span class="k">def</span> <span class="nf">getMean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get mean value of key.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key: str</span>
+<span class="sd">            d80_cm, d80_deg, eff_area or eff_flen</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Mean value of key.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If key is not among the valid options.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">YLABEL</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Invalid key to plot&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">[</span><span class="n">key</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="RayTracing.getStdDev"><a class="viewcode-back" href="../ray_tracing.html#ray_tracing.RayTracing.getStdDev">[docs]</a>    <span class="k">def</span> <span class="nf">getStdDev</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get std dev of key.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key: str</span>
+<span class="sd">            d80_cm, d80_deg, eff_area or eff_flen</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Srd deviation of key.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If key is not among the valid options.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">YLABEL</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;Invalid key to plot&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">[</span><span class="n">key</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="RayTracing.images"><a class="viewcode-back" href="../ray_tracing.html#ray_tracing.RayTracing.images">[docs]</a>    <span class="k">def</span> <span class="nf">images</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Get list of PSFImages.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List of PSFImage&#39;s</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">thisOffAxis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_offAxisAngle</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">thisOffAxis</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_psfImages</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_psfImages</span><span class="p">[</span><span class="n">thisOffAxis</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">images</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;No image found&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">images</span></div></div>
+
+<span class="c1"># END of RayTracing</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, gammasim-tools developers
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

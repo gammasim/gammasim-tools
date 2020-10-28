@@ -1,0 +1,474 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Framework &mdash; gammasim-tools 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Applications" href="applications.html" />
+    <link rel="prev" title="Getting Started" href="getting_started.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> gammasim-tools
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#configuration-file">Configuration file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-config">config</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#i-o">I/O</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-io_handler">io_handler</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#test-units">Test Units</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="applications.html">Applications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="library.html">simtools Library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="databases.html">Databases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">Conventions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">gammasim-tools</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Framework</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/framework.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="framework">
+<span id="id1"></span><h1>Framework<a class="headerlink" href="#framework" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="#configuration">Configuration</a></p></li>
+<li><p><a class="reference internal" href="#io">IO</a></p></li>
+<li><p><a class="reference internal" href="#testunits">TestUnits</a></p></li>
+</ul>
+<div class="section" id="configuration">
+<span id="id2"></span><h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p>The configuration is handled by the <a class="reference internal" href="#configmodule"><span class="std std-ref">config</span></a> module (see reference documentation below).</p>
+<div class="section" id="configuration-file">
+<h3>Configuration file<a class="headerlink" href="#configuration-file" title="Permalink to this headline">¶</a></h3>
+<p>gammasim-tools requires one configuration file in yaml format. This file should be named
+config.yml and it should be located at the local directory. Alternativelly one can use
+the funtion config.setConfigFileName to set an alternative file.</p>
+<p>The configuration file must contain the following entries:</p>
+<dl class="simple">
+<dt>useMongoDB: bool</dt><dd><p>Flag to turn on MongoDB. If False, the older yaml files will be used to access the Model Parameters.</p>
+</dd>
+<dt>mongoDBConfigFile: str</dt><dd><p>Path to the MongoDB config file (see <a class="reference internal" href="databases.html#model-parameters-db"><span class="std std-ref">Model Parameters DB</span></a>), which will be ignored if useMongoDB is False.</p>
+</dd>
+<dt>modelFilesLocations: list of str</dt><dd><p>List with the locations of the model files. The location of the dataFromTheInstruments is required for most of the applications and can be found <a class="reference external" href="https://gitlab.cta-observatory.org/cta-consortium/aswg/simulations/simulation-model/verification/data-from-instrument-teams">here</a>. The location of the directory with the yaml files for the model parameters and the sim_telarray config files are required in case useMongoDB is set to False. They can be found <a class="reference external" href="https://gitlab.cta-observatory.org/cta-consortium/aswg/simulations/simulation-model/simulation-model-description/-/tree/master/configReports">here</a> and <a class="reference external" href="https://gitlab.cta-observatory.org/cta-consortium/aswg/simulations/simulation-model/simulation-model-description/-/tree/master/datFiles">here</a>. The files will always be serached recursively within all the subdirectories inside the directory given by the location.</p>
+</dd>
+<dt>outputLocation: str</dt><dd><p>Path to the root directory where the output directory will be created (see <a class="reference internal" href="#io"><span class="std std-ref">I/O</span></a>).</p>
+</dd>
+<dt>testDataLocation: str</dt><dd><p>Path to the directory containing the data used to perform automatic tests. These data is provided at gammasim-tools/data/.</p>
+</dd>
+<dt>simtelPath: str</dt><dd><p>Path to the root sim_telarray directory, containing the sim_telarray software unpacked and compiled.</p>
+</dd>
+</dl>
+<p>Environmental variables can be used to set the paths/locations. Example:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">simtelPath: $SIMTELPATH</span>
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">simtelPath: ${SIMTELPATH}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="module-config">
+<span id="config"></span><span id="configmodule"></span><h3>config<a class="headerlink" href="#module-config" title="Permalink to this headline">¶</a></h3>
+<p>Module to deal with the interface with the global config information.</p>
+<dl class="py function">
+<dt id="config.change">
+<code class="sig-prename descclassname">config.</code><code class="sig-name descname">change</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">par</span></em>, <em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/config.html#change"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#config.change" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set to change a parameter to another value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>par: str</strong></dt><dd><p>Name of the parameter to change.</p>
+</dd>
+<dt><strong>value: any</strong></dt><dd><p>Value to be set to the parameter.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="config.findFile">
+<code class="sig-prename descclassname">config.</code><code class="sig-name descname">findFile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">loc</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/config.html#findFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#config.findFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for model files inside of given directories, recursively, and return its full path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name: str</strong></dt><dd><p>File name to be searched for.</p>
+</dd>
+<dt><strong>loc: Path, optional</strong></dt><dd><p>Location of where to search for the file. If not given, config information will be used.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>Full path of the file to be found if existing. Otherwise, None</dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>FileNotFoundError</dt><dd><p>If the desired file is not found.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="config.get">
+<code class="sig-prename descclassname">config.</code><code class="sig-name descname">get</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">par</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/config.html#get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#config.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a single entry from the config settings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>par: str</strong></dt><dd><p>Name of the desired parameter.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>Value of the entry from the config settings.</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="config.loadConfig">
+<code class="sig-prename descclassname">config.</code><code class="sig-name descname">loadConfig</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fileName</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/config.html#loadConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#config.loadConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load config file and return it as a dict.
+3 possible options for the config fileName:
+1st - fileName parameter is given (not None)
+2nd - CONFIG_FILE_NAME exists (set by setConfigFileName)
+3rd - ./config.yml</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>fileName: str, optional</strong></dt><dd><p>Config file name.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>dict</dt><dd><p>A dictionary containing all the info from the global configuration setting.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="config.setConfigFileName">
+<code class="sig-prename descclassname">config.</code><code class="sig-name descname">setConfigFileName</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fileName</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/config.html#setConfigFileName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#config.setConfigFileName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redefines the config file name by resetting the a global variable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>fileName: str</strong></dt><dd><p>Config file name.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="i-o">
+<span id="io"></span><h2>I/O<a class="headerlink" href="#i-o" title="Permalink to this headline">¶</a></h2>
+<p>The I/O is handled by the <a class="reference internal" href="#iomodule"><span class="std std-ref">io_handler</span></a> module (see reference documentation below).</p>
+<div class="section" id="module-io_handler">
+<span id="io-handler"></span><span id="iomodule"></span><h3>io_handler<a class="headerlink" href="#module-io_handler" title="Permalink to this headline">¶</a></h3>
+<p>Module to handle input and output conventions.</p>
+<dl class="py function">
+<dt id="io_handler.getCorsikaOutputDirectory">
+<code class="sig-prename descclassname">io_handler.</code><code class="sig-name descname">getCorsikaOutputDirectory</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filesLocation</span></em>, <em class="sig-param"><span class="n">label</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/io_handler.html#getCorsikaOutputDirectory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#io_handler.getCorsikaOutputDirectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get output directory for corsika related files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filesLocation: str, or Path</strong></dt><dd><p>Main location of the output files.</p>
+</dd>
+<dt><strong>label: str</strong></dt><dd><p>Instance label.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>Path</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="io_handler.getModelOutputDirectory">
+<code class="sig-prename descclassname">io_handler.</code><code class="sig-name descname">getModelOutputDirectory</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filesLocation</span></em>, <em class="sig-param"><span class="n">label</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/io_handler.html#getModelOutputDirectory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#io_handler.getModelOutputDirectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get output directory for model related files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filesLocation: str, or Path</strong></dt><dd><p>Main location of the output files.</p>
+</dd>
+<dt><strong>label: str</strong></dt><dd><p>Instance label.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>Path</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="io_handler.getRayTracingOutputDirectory">
+<code class="sig-prename descclassname">io_handler.</code><code class="sig-name descname">getRayTracingOutputDirectory</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filesLocation</span></em>, <em class="sig-param"><span class="n">label</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/io_handler.html#getRayTracingOutputDirectory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#io_handler.getRayTracingOutputDirectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get output directory for ray tracing related files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filesLocation: str, or Path</strong></dt><dd><p>Main location of the output files.</p>
+</dd>
+<dt><strong>label: str</strong></dt><dd><p>Instance label.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>Path</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="io_handler.getTestDataFile">
+<code class="sig-prename descclassname">io_handler.</code><code class="sig-name descname">getTestDataFile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fileName</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/io_handler.html#getTestDataFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#io_handler.getTestDataFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get path of a test file, using the  testDataLocation taken from the config file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filesName: str</strong></dt><dd><p>File name</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>Path</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="io_handler.getTestPlotFile">
+<code class="sig-prename descclassname">io_handler.</code><code class="sig-name descname">getTestPlotFile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fileName</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/io_handler.html#getTestPlotFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#io_handler.getTestPlotFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get path of a test plot file, using the  testDataLocation taken from the config file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filesName: str</strong></dt><dd><p>File name</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>Path</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="test-units">
+<span id="testunits"></span><h2>Test Units<a class="headerlink" href="#test-units" title="Permalink to this headline">¶</a></h2>
+<p>Every library module must have a test unit associated at simtools/tests.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="applications.html" class="btn btn-neutral float-right" title="Applications" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="getting_started.html" class="btn btn-neutral float-left" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, gammasim-tools developers
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

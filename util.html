@@ -1,0 +1,942 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Utilities &mdash; gammasim-tools 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Databases" href="databases.html" />
+    <link rel="prev" title="sim_telarray Runner" href="simtel_runner.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> gammasim-tools
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="framework.html">Framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="applications.html">Applications</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="library.html">simtools Library</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="mc_model.html">MC Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ray_tracing.html">Ray Tracing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="camera_efficiency.html">Camera Efficiency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simtel_runner.html">sim_telarray Runner</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#utilgeneral">general</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#utilmodel">model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#utilnames">names</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#utillegendhandlers">legend_handlers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="databases.html">Databases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conventions.html">Conventions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">gammasim-tools</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="library.html">simtools Library</a> &raquo;</li>
+        
+      <li>Utilities</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/util.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="utilities">
+<span id="id1"></span><h1>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h1>
+<p>In this section you find the reference documentation of the modules contained in
+the util module.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="utilgeneral">general</a></p></li>
+<li><p><a class="reference external" href="utilmodel">model</a></p></li>
+<li><p><a class="reference external" href="utilnames">names</a></p></li>
+<li><p><a class="reference external" href="utillegendhandlers">legend_handlers</a></p></li>
+</ul>
+<div class="section" id="utilgeneral">
+<span id="id2"></span><h2>general<a class="headerlink" href="#utilgeneral" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-util.general"></span><dl class="py function">
+<dt id="util.general.collectArguments">
+<code class="sig-prename descclassname">util.general.</code><code class="sig-name descname">collectArguments</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em>, <em class="sig-param"><span class="n">args</span></em>, <em class="sig-param"><span class="n">allInputs</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/general.html#collectArguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.general.collectArguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collect certain arguments and validate them.
+To be used during initialization of classes, where kwargs with physical meaning and units are
+expected.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>obj: class instance (self)</strong></dt><dd></dd>
+<dt><strong>args: list of str</strong></dt><dd><p>List of names of the parameters to be collected.</p>
+</dd>
+<dt><strong>allInputs: dict</strong></dt><dd><p>Dict with info about all the expected inputs. See example.</p>
+</dd>
+<dt><strong>**kwargs:</strong></dt><dd><p>kwargs from the input arguments.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="util.general.collectFinalLines">
+<code class="sig-prename descclassname">util.general.</code><code class="sig-name descname">collectFinalLines</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file</span></em>, <em class="sig-param"><span class="n">nLines</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/general.html#collectFinalLines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.general.collectFinalLines" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>file: str or Path</strong></dt><dd><p>File to collect the lines from.</p>
+</dd>
+<dt><strong>nLines: int</strong></dt><dd><p>Number of lines to be collected.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>str: lines</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="util.general.collectKwargs">
+<code class="sig-prename descclassname">util.general.</code><code class="sig-name descname">collectKwargs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span></em>, <em class="sig-param"><span class="n">inKwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/general.html#collectKwargs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.general.collectKwargs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collect kwargs of the type label_* and return them as a dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>label: str</strong></dt><dd></dd>
+<dt><strong>inKwargs: dict</strong></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>Dict with the collected kwargs.</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="util.general.setDefaultKwargs">
+<code class="sig-prename descclassname">util.general.</code><code class="sig-name descname">setDefaultKwargs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inKwargs</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/general.html#setDefaultKwargs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.general.setDefaultKwargs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fill in a dict with a set of default kwargs and return it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>inKwargs: dict</strong></dt><dd><p>Input dict to be filled in with the default kwargs.</p>
+</dd>
+<dt><strong>**kwargs:</strong></dt><dd><p>Default kwargs to be set.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>Dict containing the default kwargs.</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="utilmodel">
+<span id="id3"></span><h2>model<a class="headerlink" href="#utilmodel" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-util.model"></span><dl class="py function">
+<dt id="util.model.computeTelescopeTransmission">
+<code class="sig-prename descclassname">util.model.</code><code class="sig-name descname">computeTelescopeTransmission</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pars</span></em>, <em class="sig-param"><span class="n">offAxis</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/model.html#computeTelescopeTransmission"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.model.computeTelescopeTransmission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute tel. transmission (0 &lt; T &lt; 1) for a given set of parameters
+as defined by the MC model and for a given off-axis angle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>pars: list of float</strong></dt><dd><p>Parameters of the telescope transmission. Len(pars) should be 4.</p>
+</dd>
+<dt><strong>offAxis: float</strong></dt><dd><p>Off-axis angle in deg.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>Telescope transmission.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="util.model.getCameraName">
+<code class="sig-prename descclassname">util.model.</code><code class="sig-name descname">getCameraName</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">telescopeName</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/model.html#getCameraName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.model.getCameraName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get camera name from the telescope name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>telescopeName: str</strong></dt><dd><p>Telescope name (ex. South-LST-1)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>str</dt><dd><p>Camera name (validated by util.names)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="util.model.getTelescopeClass">
+<code class="sig-prename descclassname">util.model.</code><code class="sig-name descname">getTelescopeClass</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">telescopeName</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/model.html#getTelescopeClass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.model.getTelescopeClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get telescope class from telescope name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>telescopeName: str</strong></dt><dd><p>Telescope name (ex. South-LST-1)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>str</dt><dd><p>Telescope class (SST, MST, …)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="util.model.isTwoMirrorTelescope">
+<code class="sig-prename descclassname">util.model.</code><code class="sig-name descname">isTwoMirrorTelescope</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">telescopeName</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/model.html#isTwoMirrorTelescope"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.model.isTwoMirrorTelescope" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the telescope is a two mirror design.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>telescopeName: str</strong></dt><dd><p>Telescope name (ex. South-LST-1)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>bool</dt><dd><p>True if the telescope is a two mirror one.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="utilnames">
+<span id="id4"></span><h2>names<a class="headerlink" href="#utilnames" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-util.names"></span><dl class="py function">
+<dt id="util.names.convertTelescopeNameToYaml">
+<code class="sig-prename descclassname">util.names.</code><code class="sig-name descname">convertTelescopeNameToYaml</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/names.html#convertTelescopeNameToYaml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.names.convertTelescopeNameToYaml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get telescope name following the old convention (yaml files) from the current telescope name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name: str</strong></dt><dd><p>Telescope name.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>str</dt><dd><p>Telescope name (old convention).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="util.names.corsikaConfigFileName">
+<code class="sig-prename descclassname">util.names.</code><code class="sig-name descname">corsikaConfigFileName</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">arrayName</span></em>, <em class="sig-param"><span class="n">site</span></em>, <em class="sig-param"><span class="n">zenith</span></em>, <em class="sig-param"><span class="n">viewCone</span></em>, <em class="sig-param"><span class="n">label</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/names.html#corsikaConfigFileName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.names.corsikaConfigFileName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Corsika config file name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>arrayName: str</strong></dt><dd><p>Array name.</p>
+</dd>
+<dt><strong>site: str</strong></dt><dd><p>Paranal or LaPalma.</p>
+</dd>
+<dt><strong>zenith: float</strong></dt><dd><p>Zenith angle (deg).</p>
+</dd>
+<dt><strong>viewCone: list of float</strong></dt><dd><p>View cone limits (len = 2).</p>
+</dd>
+<dt><strong>label: str</strong></dt><dd><p>Instance label.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>str</dt><dd><p>File name.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="util.names.corsikaOutputFileName">
+<code class="sig-prename descclassname">util.names.</code><code class="sig-name descname">corsikaOutputFileName</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">arrayName</span></em>, <em class="sig-param"><span class="n">site</span></em>, <em class="sig-param"><span class="n">zenith</span></em>, <em class="sig-param"><span class="n">viewCone</span></em>, <em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">label</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/names.html#corsikaOutputFileName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.names.corsikaOutputFileName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Corsika output file name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>arrayName: str</strong></dt><dd><p>Array name.</p>
+</dd>
+<dt><strong>site: str</strong></dt><dd><p>Paranal or LaPalma.</p>
+</dd>
+<dt><strong>zenith: float</strong></dt><dd><p>Zenith angle (deg).</p>
+</dd>
+<dt><strong>viewCone: list of float</strong></dt><dd><p>View cone limits (len = 2).</p>
+</dd>
+<dt><strong>run: int</strong></dt><dd><p>Run number.</p>
+</dd>
+<dt><strong>label: str</strong></dt><dd><p>Instance label.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>str</dt><dd><p>File name.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="util.names.getSiteFromTelescopeName">
+<code class="sig-prename descclassname">util.names.</code><code class="sig-name descname">getSiteFromTelescopeName</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/names.html#getSiteFromTelescopeName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.names.getSiteFromTelescopeName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get site name (South or North) from the (validated) telescope name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name: str</strong></dt><dd><p>Telescope name.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>str</dt><dd><p>Site name (South or North).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="util.names.rayTracingFileName">
+<code class="sig-prename descclassname">util.names.</code><code class="sig-name descname">rayTracingFileName</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">telescopeName</span></em>, <em class="sig-param"><span class="n">sourceDistance</span></em>, <em class="sig-param"><span class="n">zenithAngle</span></em>, <em class="sig-param"><span class="n">offAxisAngle</span></em>, <em class="sig-param"><span class="n">mirrorNumber</span></em>, <em class="sig-param"><span class="n">label</span></em>, <em class="sig-param"><span class="n">base</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/names.html#rayTracingFileName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.names.rayTracingFileName" title="Permalink to this definition">¶</a></dt>
+<dd><p>File name for files required at the RayTracing class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>telescopeName: str</strong></dt><dd><p>North-LST-1, South-MST-FlashCam, …</p>
+</dd>
+<dt><strong>sourceDistance: float</strong></dt><dd><p>Source distance (km).</p>
+</dd>
+<dt><strong>zenithAngle: float</strong></dt><dd><p>Zenith angle (deg).</p>
+</dd>
+<dt><strong>offAxisAngle: float</strong></dt><dd><p>Off-axis angle (deg).</p>
+</dd>
+<dt><strong>mirrorNumber: int</strong></dt><dd><p>Mirror number. None if not single mirror case.</p>
+</dd>
+<dt><strong>label: str</strong></dt><dd><p>Instance label.</p>
+</dd>
+<dt><strong>base: str</strong></dt><dd><p>Photons, stars or log.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>str</dt><dd><p>File name.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="util.names.simtelConfigFileName">
+<code class="sig-prename descclassname">util.names.</code><code class="sig-name descname">simtelConfigFileName</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">version</span></em>, <em class="sig-param"><span class="n">telescopeName</span></em>, <em class="sig-param"><span class="n">label</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/names.html#simtelConfigFileName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.names.simtelConfigFileName" title="Permalink to this definition">¶</a></dt>
+<dd><p>sim_telarray config file name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>version: str</strong></dt><dd><p>Version of the model.</p>
+</dd>
+<dt><strong>telescopeName: str</strong></dt><dd><p>North-LST-1, South-MST-FlashCam, …</p>
+</dd>
+<dt><strong>label: str</strong></dt><dd><p>Instance label.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>str</dt><dd><p>File name.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="util.names.simtelSingleMirrorListFileName">
+<code class="sig-prename descclassname">util.names.</code><code class="sig-name descname">simtelSingleMirrorListFileName</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">version</span></em>, <em class="sig-param"><span class="n">telescopeName</span></em>, <em class="sig-param"><span class="n">mirrorNumber</span></em>, <em class="sig-param"><span class="n">label</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/names.html#simtelSingleMirrorListFileName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.names.simtelSingleMirrorListFileName" title="Permalink to this definition">¶</a></dt>
+<dd><p>sim_telarray mirror list file with a single mirror.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>version: str</strong></dt><dd><p>Version of the model.</p>
+</dd>
+<dt><strong>telescopeName: str</strong></dt><dd><p>North-LST-1, South-MST-FlashCam, …</p>
+</dd>
+<dt><strong>mirrorNumber: int</strong></dt><dd><p>Mirror number.</p>
+</dd>
+<dt><strong>label: str</strong></dt><dd><p>Instance label.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>str</dt><dd><p>File name.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="util.names.splitTelescopeName">
+<code class="sig-prename descclassname">util.names.</code><code class="sig-name descname">splitTelescopeName</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/names.html#splitTelescopeName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.names.splitTelescopeName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split a telescope name into site, class and type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name: str</strong></dt><dd><p>Telescope name.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>str, str, str</dt><dd><p>Site (South or North), class (LST, MST, SST …) and type (any complement).</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If name is not valid.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="util.names.validateArrayName">
+<code class="sig-prename descclassname">util.names.</code><code class="sig-name descname">validateArrayName</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/names.html#validateArrayName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.names.validateArrayName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate a array name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name: str</strong></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>str</dt><dd><p>Validated name.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If name is not valid.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="util.names.validateCameraName">
+<code class="sig-prename descclassname">util.names.</code><code class="sig-name descname">validateCameraName</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/names.html#validateCameraName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.names.validateCameraName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate a camera name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name: str</strong></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>str</dt><dd><p>Validated name.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If name is not valid.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="util.names.validateModelVersionName">
+<code class="sig-prename descclassname">util.names.</code><code class="sig-name descname">validateModelVersionName</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/names.html#validateModelVersionName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.names.validateModelVersionName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate a model version name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name: str</strong></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>str</dt><dd><p>Validated name.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If name is not valid.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="util.names.validateSimtelModeName">
+<code class="sig-prename descclassname">util.names.</code><code class="sig-name descname">validateSimtelModeName</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/names.html#validateSimtelModeName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.names.validateSimtelModeName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate a sim_telarray mode name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name: str</strong></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>str</dt><dd><p>Validated name.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If name is not valid.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="util.names.validateSiteName">
+<code class="sig-prename descclassname">util.names.</code><code class="sig-name descname">validateSiteName</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/names.html#validateSiteName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.names.validateSiteName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate a site name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name: str</strong></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>str</dt><dd><p>Validated name.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If name is not valid.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="util.names.validateTelescopeName">
+<code class="sig-prename descclassname">util.names.</code><code class="sig-name descname">validateTelescopeName</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util/names.html#validateTelescopeName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.names.validateTelescopeName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate a telescope name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name: str</strong></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>str</dt><dd><p>Validated name.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If name is not valid.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="utillegendhandlers">
+<span id="id5"></span><h2>legend_handlers<a class="headerlink" href="#utillegendhandlers" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-util.legend_handlers"></span><dl class="py class">
+<dt id="util.legend_handlers.hexEdgePixelHandler">
+<em class="property">class </em><code class="sig-prename descclassname">util.legend_handlers.</code><code class="sig-name descname">hexEdgePixelHandler</code><a class="reference internal" href="_modules/util/legend_handlers.html#hexEdgePixelHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.legend_handlers.hexEdgePixelHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Legend handler class to plot a hexagonal “edge” pixel.</p>
+<p class="rubric">Methods</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 63%" />
+<col style="width: 37%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>legend_artist</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="py class">
+<dt id="util.legend_handlers.hexOffPixelHandler">
+<em class="property">class </em><code class="sig-prename descclassname">util.legend_handlers.</code><code class="sig-name descname">hexOffPixelHandler</code><a class="reference internal" href="_modules/util/legend_handlers.html#hexOffPixelHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.legend_handlers.hexOffPixelHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Legend handler class to plot a hexagonal “off” pixel.</p>
+<p class="rubric">Methods</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 63%" />
+<col style="width: 37%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>legend_artist</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="py class">
+<dt id="util.legend_handlers.hexPixelHandler">
+<em class="property">class </em><code class="sig-prename descclassname">util.legend_handlers.</code><code class="sig-name descname">hexPixelHandler</code><a class="reference internal" href="_modules/util/legend_handlers.html#hexPixelHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.legend_handlers.hexPixelHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Legend handler class to plot a hexagonal “on” pixel.</p>
+<p class="rubric">Methods</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 63%" />
+<col style="width: 37%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>legend_artist</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="py class">
+<dt id="util.legend_handlers.lstHandler">
+<em class="property">class </em><code class="sig-prename descclassname">util.legend_handlers.</code><code class="sig-name descname">lstHandler</code><a class="reference internal" href="_modules/util/legend_handlers.html#lstHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.legend_handlers.lstHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Legend handler class to plot a representation of an LST in an array layout.</p>
+<p class="rubric">Methods</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 63%" />
+<col style="width: 37%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>legend_artist</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="py class">
+<dt id="util.legend_handlers.meanRadiusOuterEdgeHandler">
+<em class="property">class </em><code class="sig-prename descclassname">util.legend_handlers.</code><code class="sig-name descname">meanRadiusOuterEdgeHandler</code><a class="reference internal" href="_modules/util/legend_handlers.html#meanRadiusOuterEdgeHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.legend_handlers.meanRadiusOuterEdgeHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Legend handler class to plot a the mean radius outer edge of the dish.</p>
+<p class="rubric">Methods</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 63%" />
+<col style="width: 37%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>legend_artist</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="py class">
+<dt id="util.legend_handlers.mstHandler">
+<em class="property">class </em><code class="sig-prename descclassname">util.legend_handlers.</code><code class="sig-name descname">mstHandler</code><a class="reference internal" href="_modules/util/legend_handlers.html#mstHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.legend_handlers.mstHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Legend handler class to plot a representation of an MST in an array layout.</p>
+<p class="rubric">Methods</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 63%" />
+<col style="width: 37%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>legend_artist</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="py class">
+<dt id="util.legend_handlers.squareEdgePixelHandler">
+<em class="property">class </em><code class="sig-prename descclassname">util.legend_handlers.</code><code class="sig-name descname">squareEdgePixelHandler</code><a class="reference internal" href="_modules/util/legend_handlers.html#squareEdgePixelHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.legend_handlers.squareEdgePixelHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Legend handler class to plot a square “edge” pixel.</p>
+<p class="rubric">Methods</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 63%" />
+<col style="width: 37%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>legend_artist</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="py class">
+<dt id="util.legend_handlers.squareOffPixelHandler">
+<em class="property">class </em><code class="sig-prename descclassname">util.legend_handlers.</code><code class="sig-name descname">squareOffPixelHandler</code><a class="reference internal" href="_modules/util/legend_handlers.html#squareOffPixelHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.legend_handlers.squareOffPixelHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Legend handler class to plot a square “off” pixel.</p>
+<p class="rubric">Methods</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 63%" />
+<col style="width: 37%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>legend_artist</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="py class">
+<dt id="util.legend_handlers.squarePixelHandler">
+<em class="property">class </em><code class="sig-prename descclassname">util.legend_handlers.</code><code class="sig-name descname">squarePixelHandler</code><a class="reference internal" href="_modules/util/legend_handlers.html#squarePixelHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.legend_handlers.squarePixelHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Legend handler class to plot a square “on” pixel.</p>
+<p class="rubric">Methods</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 63%" />
+<col style="width: 37%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>legend_artist</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="py class">
+<dt id="util.legend_handlers.sstHandler">
+<em class="property">class </em><code class="sig-prename descclassname">util.legend_handlers.</code><code class="sig-name descname">sstHandler</code><a class="reference internal" href="_modules/util/legend_handlers.html#sstHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.legend_handlers.sstHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Legend handler class to plot a representation of an SST in an array layout.</p>
+<p class="rubric">Methods</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 63%" />
+<col style="width: 37%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>legend_artist</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="databases.html" class="btn btn-neutral float-right" title="Databases" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="simtel_runner.html" class="btn btn-neutral float-left" title="sim_telarray Runner" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, gammasim-tools developers
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
